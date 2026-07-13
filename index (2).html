@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFROSCOUT WOMEN'S — Scouting Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#0D0B10; --panel:#17141C; --panel2:#1E1A26; --line:#2A2532;
+  --pink:#FF2D87; --pink-soft:#FF7AB5; --pink-dim:#5c2040;
+  --txt:#F2EEF4; --muted:#9A93A5; --ok:#39d98a; --warn:#ffb02e;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--txt);font-family:'Archivo',sans-serif;font-size:15px;line-height:1.5;min-height:100vh}
+a{color:var(--pink-soft);text-decoration:none}
+a:hover{text-decoration:underline}
+.mono{font-family:'IBM Plex Mono',monospace}
+h1,h2,h3{font-weight:900;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px;font-size:14px}
+input,select,textarea{font-family:inherit;font-size:15px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pink);outline-offset:0;border-color:var(--pink)}
+textarea{min-height:84px;resize:vertical}
+label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:12px 0 5px;font-weight:600}
+.hint{font-size:12px;color:var(--pink-soft);margin-top:4px}
+/* header */
+header{position:sticky;top:0;z-index:50;background:rgba(13,11,16,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hwrap{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.wordmark{font-weight:900;font-size:17px;letter-spacing:.02em;color:var(--txt);white-space:nowrap}
+.wordmark b{color:var(--pink)}
+nav{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto}
+nav a{padding:7px 12px;border-radius:8px;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap}
+nav a.active{background:var(--panel2);color:var(--txt)}
+.hbtns{display:flex;gap:8px;align-items:center}
+.btn{background:var(--panel2);color:var(--txt);padding:8px 14px;font-weight:600;border:1px solid var(--line)}
+.btn:hover{border-color:var(--pink)}
+.btn.primary{background:var(--pink);color:#fff;border-color:var(--pink)}
+.btn.primary:hover{background:#e0206f}
+.btn.small{padding:5px 10px;font-size:12px}
+.btn.danger{color:#ff6b6b}
+/* layout */
+main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
+.pagehead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.pagehead h1{font-size:26px}
+.count{color:var(--muted);font-size:14px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar>*{width:auto;flex:1;min-width:130px}
+.toolbar input[type=search]{flex:2;min-width:180px}
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;gap:12px;align-items:center;transition:border-color .15s}
+.card:hover{border-color:var(--pink)}
+.card .who{flex:1;min-width:0}
+.card .who .nm{font-weight:700;font-size:15px;color:var(--txt);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .who .sub{font-size:12.5px;color:var(--muted)}
+/* signature: R/P rating stub */
+.stub{display:flex;flex-direction:column;align-items:center;background:var(--panel2);border:1px dashed var(--pink-dim);border-radius:8px;padding:5px 9px;min-width:52px}
+.stub .rp{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;color:var(--pink)}
+.stub .lb{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.badge{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.badge.watchlist{color:var(--muted)}
+.badge.follow{color:var(--pink-soft);border-color:var(--pink-dim)}
+.badge.recommend{color:var(--ok);border-color:#1d5c3f}
+.badge.pass{color:#777}
+.flag{font-size:18px}
+/* panels */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.panel h3{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--pink);margin-bottom:10px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.kv div b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.kv div span{font-size:15px}
+.evalblock p{white-space:pre-wrap;margin-bottom:8px}
+.evalblock h4{font-size:13px;color:var(--pink-soft);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em}
+/* obs log */
+.obs{border-left:3px solid var(--pink-dim);padding:10px 12px;margin-bottom:10px;background:var(--panel2);border-radius:0 8px 8px 0}
+.obs .meta{font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px}
+.obs .stats{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--pink-soft)}
+/* stats table */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+td.num{font-family:'IBM Plex Mono',monospace}
+/* combobox */
+.combo{position:relative}
+.combo .dd{position:absolute;top:100%;left:0;right:0;background:var(--panel2);border:1px solid var(--pink);border-radius:0 0 8px 8px;max-height:230px;overflow-y:auto;z-index:40;display:none}
+.combo .dd div{padding:8px 12px;cursor:pointer;font-size:14px}
+.combo .dd div:hover,.combo .dd div.sel{background:var(--pink-dim)}
+.combo .dd .add{color:var(--pink);font-weight:700}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;width:100%;max-width:520px}
+.modal h2{font-size:19px;margin-bottom:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.dupwarn{background:#3a1420;border:1px solid #7d2140;border-radius:8px;padding:10px;margin-top:10px;font-size:13px}
+/* note rows in match flow */
+.noterow{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.empty{border:1px dashed var(--line);border-radius:var(--radius);padding:34px;text-align:center;color:var(--muted)}
+.empty b{color:var(--txt);display:block;margin-bottom:6px;font-size:16px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--pink);color:#fff;padding:10px 20px;border-radius:99px;font-weight:700;z-index:200;box-shadow:0 6px 24px rgba(255,45,135,.4)}
+.demo-banner{background:var(--pink-dim);color:var(--pink-soft);text-align:center;font-size:12.5px;padding:6px 12px}
+@media (max-width:640px){
+  .row3{grid-template-columns:1fr 1fr}
+  .pagehead h1{font-size:21px}
+  nav{order:3;width:100%}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="demoBanner" class="demo-banner" style="display:none"></div>
+<header>
+  <div class="hwrap">
+    <span class="wordmark">🔭 AFROSCOUT <b>WOMEN'S</b></span>
+    <nav id="nav"></nav>
+    <div class="hbtns">
+      <button class="btn small" id="langBtn"></button>
+      <button class="btn small" id="lockBtn"></button>
+    </div>
+  </div>
+</header>
+<main id="app"></main>
+
+<script>
+/* ================= CONFIG ================= */
+const SUPABASE_URL  = 'YOUR-SUPABASE-URL';        // e.g. https://xxxx.supabase.co
+const SUPABASE_KEY  = 'YOUR-SUPABASE-ANON-KEY';
+const WRITE_PASSWORD = 'afroscout1';               // change before sharing
+const SCOUTS = ['Artem','Kingsley','Jason'];
+const DEMO = SUPABASE_URL.startsWith('YOUR');
+const sb = DEMO ? null : supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ================= I18N ================= */
+const I18N = {
+ fr:{players:'Joueuses',matches:'Matchs',competitions:'Compétitions',clubs:'Clubs',
+  search:'Rechercher une joueuse…',allCountries:'Tous pays',allPositions:'Tous postes',allScouts:'Tous scouts',allStatus:'Tous statuts',
+  addPlayer:'+ Joueuse',newMatch:'+ Rapport de match',export:'Export CSV',
+  status:{watchlist:'À observer',follow:'À suivre',recommend:'Recommandée',pass:'Écartée'},
+  lastObs:'Dernière obs.',noObs:'Jamais observée',born:'Née',height:'Taille',foot:'Pied',club:'Club',nt:'Sélection',position:'Poste',
+  evaluation:'Évaluation',rendement:'Rendement',potentiel:'Potentiel',benchmark:'Évaluée par rapport à',
+  ratingHint:'1 = meilleur niveau · 8 = plus faible',
+  strengths:'Points forts',technique:'Technique',tactique:'Tactique',mental:'Mental',athletique:'Athlétique',
+  axe:'Axe d\u2019amélioration',opinions:'Opinions & projection',
+  obsLog:'Journal d\u2019observations',statsBlock:'Stats (matchs observés)',basicInfo:'Infos non vérifiées',
+  comp:'Compétition',min:'Min',goals:'Buts',assists:'Passes déc.',matchesN:'Matchs',
+  edit:'Modifier',save:'Enregistrer',cancel:'Annuler',delete:'Supprimer',copyLink:'Copier le lien',copied:'Lien copié',
+  unlock:'Déverrouiller',lock:'Verrouiller',whoAreYou:'Qui êtes-vous ?',password:'Mot de passe',wrongPw:'Mot de passe incorrect',
+  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Pays',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Amical / Autre',
+  homeTeam:'Équipe A',awayTeam:'Équipe B',date:'Date',generalNotes:'Notes générales (contexte, terrain…)',
+  playersObserved:'Joueuses observées',addNote:'+ Ajouter une joueuse',note:'Observation',videoUrl:'Lien vidéo (match, highlights…)',
+  quickAdd:'Nouvelle joueuse',dupWarn:'Profils similaires trouvés — est-ce la même joueuse ?',useExisting:'Utiliser',createAnyway:'Créer quand même',
+  name:'Nom',country:'Pays',birthDate:'Date de naissance (jj/mm/aaaa)',birthYear:'Année de naissance',
+  emptyPlayers:'Aucune joueuse pour ces filtres',emptyPlayersSub:'Ajoutez une joueuse ou changez les filtres.',
+  emptyMatches:'Aucun rapport de match',emptyMatchesSub:'Loggez votre premier match — les observations alimenteront automatiquement les profils.',
+  emptyComps:'Aucune compétition couverte',emptyCompsSub:'Les compétitions apparaissent dès qu\u2019un match y est loggé.',
+  coverage:'Couverture',teamsSeen:'Équipes vues',playersNoted:'Joueuses notées',scoutsPart:'Scouts',
+  by:'par',editedBy:'modifié par',typeToSearch:'Tapez 2 caractères…',createNew:'Créer',
+  confirmDelete:'Supprimer définitivement ?',required:'Champ requis',saveFirst:'Choisissez la compétition et les équipes d\u2019abord',
+  selectCompetition:'Choisir la compétition…',selectTeam:'Équipe…',selectPlayer:'Joueuse…',
+  videos:'Vidéos',openMatch:'Voir le match',roster:'Effectif lié',matchHistory:'Matchs',
+  noEval:'Pas encore d\u2019évaluation — les notes de match s\u2019accumulent ici avant la synthèse.'},
+ en:{players:'Players',matches:'Matches',competitions:'Competitions',clubs:'Clubs',
+  search:'Search a player…',allCountries:'All countries',allPositions:'All positions',allScouts:'All scouts',allStatus:'All statuses',
+  addPlayer:'+ Player',newMatch:'+ Match report',export:'Export CSV',
+  status:{watchlist:'Watchlist',follow:'Follow',recommend:'Recommend',pass:'Pass'},
+  lastObs:'Last obs.',noObs:'Never observed',born:'Born',height:'Height',foot:'Foot',club:'Club',nt:'Nat. team',position:'Position',
+  evaluation:'Evaluation',rendement:'Current level',potentiel:'Potential',benchmark:'Rated against',
+  ratingHint:'1 = best · 8 = weakest',
+  strengths:'Strengths',technique:'Technical',tactique:'Tactical',mental:'Mental',athletique:'Athletic',
+  axe:'Area for improvement',opinions:'Opinions & projection',
+  obsLog:'Observation log',statsBlock:'Stats (observed matches)',basicInfo:'Unverified info',
+  comp:'Competition',min:'Min',goals:'Goals',assists:'Assists',matchesN:'Matches',
+  edit:'Edit',save:'Save',cancel:'Cancel',delete:'Delete',copyLink:'Copy link',copied:'Link copied',
+  unlock:'Unlock',lock:'Lock',whoAreYou:'Who are you?',password:'Password',wrongPw:'Wrong password',
+  matchReport:'Match report',scope:'Scope',scopeCountry:'Country',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Friendly / Other',
+  homeTeam:'Team A',awayTeam:'Team B',date:'Date',generalNotes:'General notes (context, pitch…)',
+  playersObserved:'Players observed',addNote:'+ Add player',note:'Observation',videoUrl:'Video link (match, highlights…)',
+  quickAdd:'New player',dupWarn:'Similar profiles found — same player?',useExisting:'Use',createAnyway:'Create anyway',
+  name:'Name',country:'Country',birthDate:'Birth date (dd/mm/yyyy)',birthYear:'Birth year',
+  emptyPlayers:'No players match these filters',emptyPlayersSub:'Add a player or change the filters.',
+  emptyMatches:'No match reports yet',emptyMatchesSub:'Log your first match — observations feed player profiles automatically.',
+  emptyComps:'No competitions covered yet',emptyCompsSub:'Competitions appear as soon as a match is logged in them.',
+  coverage:'Coverage',teamsSeen:'Teams seen',playersNoted:'Players noted',scoutsPart:'Scouts',
+  by:'by',editedBy:'edited by',typeToSearch:'Type 2 characters…',createNew:'Create',
+  confirmDelete:'Delete permanently?',required:'Required field',saveFirst:'Pick the competition and teams first',
+  selectCompetition:'Pick competition…',selectTeam:'Team…',selectPlayer:'Player…',
+  videos:'Videos',openMatch:'Open match',roster:'Linked squad',matchHistory:'Matches',
+  noEval:'No evaluation yet — match notes accumulate here before the synthesis.'}
+};
+let LANG = localStorage.getItem('afs_lang') || 'fr';
+const t = k => { const o=I18N[LANG]; return k.split('.').reduce((a,b)=>a&&a[b],o) ?? k; };
+
+/* ================= CAF ATLAS ================= */
+const CAF = [
+["DZ","Algeria","Algérie"],["AO","Angola","Angola"],["BJ","Benin","Bénin"],["BW","Botswana","Botswana"],
+["BF","Burkina Faso","Burkina Faso"],["BI","Burundi","Burundi"],["CM","Cameroon","Cameroun"],["CV","Cape Verde","Cap-Vert"],
+["CF","Central African Rep.","Rép. centrafricaine"],["TD","Chad","Tchad"],["KM","Comoros","Comores"],["CG","Congo","Congo"],
+["CD","DR Congo","RD Congo"],["CI","Côte d'Ivoire","Côte d'Ivoire"],["DJ","Djibouti","Djibouti"],["EG","Egypt","Égypte"],
+["GQ","Equatorial Guinea","Guinée équatoriale"],["ER","Eritrea","Érythrée"],["SZ","Eswatini","Eswatini"],["ET","Ethiopia","Éthiopie"],
+["GA","Gabon","Gabon"],["GM","Gambia","Gambie"],["GH","Ghana","Ghana"],["GN","Guinea","Guinée"],
+["GW","Guinea-Bissau","Guinée-Bissau"],["KE","Kenya","Kenya"],["LS","Lesotho","Lesotho"],["LR","Liberia","Libéria"],
+["LY","Libya","Libye"],["MG","Madagascar","Madagascar"],["MW","Malawi","Malawi"],["ML","Mali","Mali"],
+["MR","Mauritania","Mauritanie"],["MU","Mauritius","Maurice"],["MA","Morocco","Maroc"],["MZ","Mozambique","Mozambique"],
+["NA","Namibia","Namibie"],["NE","Niger","Niger"],["NG","Nigeria","Nigéria"],["RW","Rwanda","Rwanda"],
+["ST","São Tomé & Príncipe","Sao Tomé-et-Principe"],["SN","Senegal","Sénégal"],["SC","Seychelles","Seychelles"],["SL","Sierra Leone","Sierra Leone"],
+["SO","Somalia","Somalie"],["ZA","South Africa","Afrique du Sud"],["SS","South Sudan","Soudan du Sud"],["SD","Sudan","Soudan"],
+["TZ","Tanzania","Tanzanie"],["TG","Togo","Togo"],["TN","Tunisia","Tunisie"],["UG","Uganda","Ouganda"],
+["ZM","Zambia","Zambie"],["ZW","Zimbabwe","Zimbabwe"]];
+const flag = cc => cc && cc.length===2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c=>0x1F1A5+c.charCodeAt(0))) : '🏳️';
+/* accent/punctuation-insensitive search key: "Côte d'Ivoire" -> "cote d ivoire" */
+const norm = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’'`´]/g,'').replace(/[\-\.&]/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const CC_ALIAS = {CI:'Ivory Coast',CD:'DRC RDC Congo DR Congo Kinshasa',CG:'Congo Brazzaville',CV:'Cabo Verde',SZ:'Swaziland',ST:'Sao Tome',CF:'CAR Centrafrique Central African Republic',ZA:'RSA'};
+const cSearch = cc => { const r=CAF.find(x=>x[0]===cc); return r ? norm(`${r[1]} ${r[2]} ${cc} ${CC_ALIAS[cc]||''}`) : norm(cc); };
+const cName = cc => { const r=CAF.find(x=>x[0]===cc); return r ? (LANG==='fr'?r[2]:r[1]) : cc; };
+const FOOT_FR={Right:'Droit',Left:'Gauche',Both:'Deux pieds'};
+const tFoot = v => { if(!v) return ''; const c=v==='Droit'?'Right':v==='Gauche'?'Left':v; return LANG==='fr'?(FOOT_FR[c]||v):c; };
+const NAT_TEAMS = CAF.flatMap(([cc,en,fr])=>['','U20','U17','U15'].map(l=>({cc,label:l,key:`${cc}${l?'-'+l:''}`})));
+const natTeamName = k => { const m=k.match(/^([A-Z]{2})(?:-(U\d+))?$/); if(!m) return k; return `${flag(m[1])} ${cName(m[1])}${m[2]?' '+m[2]:''}`; };
+const CONT_COMPS = ["WAFCON","WAFCON Qualifiers","WWC Qualifiers (CAF)","Olympic Qualifiers (CAF)","CAF Women's Champions League","CAF WCL Zonal Qualifiers","U20 WWC Qualifiers (CAF)","U17 WWC Qualifiers (CAF)","CECAFA Championship","CECAFA U20","CECAFA U17","COSAFA Championship","COSAFA U20","COSAFA U17","WAFU A Championship","WAFU B Championship","UNIFFAC Championship","African Games"];
+const INTL_COMPS = ["FIFA Women's World Cup","FIFA U20 Women's World Cup","FIFA U17 Women's World Cup","Olympic Games"];
+
+/* ================= HELPERS ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const slugify = s => s.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase();
+const fmtDate = iso => { if(!iso) return ''; const [y,m,d]=iso.split('T')[0].split('-'); return `${d}/${m}/${y}`; };
+const parseDDMM = s => { const m=(s||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:null; };
+const toast = msg => { const el=document.createElement('div'); el.className='toast'; el.textContent=msg; document.body.appendChild(el); setTimeout(()=>el.remove(),1800); };
+const normName = s => slugify(s).split('-').sort().join(' ');
+
+/* ================= DATA LAYER (supabase or demo) ================= */
+const demoDB = { players:[],clubs:[],competitions:[],match_reports:[],player_notes:[] };
+function seedDemo(){
+  const c2={id:'c2',slug:'ghana-1',name:'Ghana-1',scope:'country',country:'GH',scout:'Artem'};
+  demoDB.competitions.push(c2);
+  demoDB.clubs.push({id:'cl1',slug:'hasaacas-ladies',name:'Hasaacas Ladies',country:'GH',scout:'Artem'},
+                    {id:'cl2',slug:'ampem-darkoa-ladies',name:'Ampem Darkoa Ladies',country:'GH',scout:'Artem'});
+  demoDB.players.push(
+   {id:'p2',slug:'osei-rubby-2007',name:'OSEI Rubby',country:'GH',birth_date:'2007-10-30',birth_year:2007,position:'CB',position2:'',foot:'Right',height:168,nt_level:'Ghana WU20',club_id:'cl1',photo_url:'',basic_info:'Hasaacas Ladies (Ghana-1). RCB.',status:'follow',rendement:4,potentiel:2,benchmark:'Senior club tiers',pf_technique:'Left-foot passing limited; distribution decent, loves a chipped line-breaker.',pf_tactique:'Constant defensive scanning; reads passes and runs early; organizes the line.',pf_mental:'Brave in duels; smart gamesmanship without conceding fouls.',pf_athletique:'Near-elite agility; hops on toes for big turns; first-step burst and recovery pace.',axe_amelioration:'Angles & timing when leaving position to press; ball-playing under pressure; weaker left foot.',opinions_projection:'Ceiling rests on decision-making, not physical tools. Fits a vertical game model. Tier-2 European starter projection; Turkey-1 pathway realistic (cf. Owusu Ansah → AFC Toronto precedent).',scout:'Artem',created_at:'2026-07-09T09:00:00Z',updated_at:'2026-07-09T09:00:00Z',updated_by:'Artem'});
+  demoDB.match_reports.push(
+   {id:'m2',slug:'2026-06-24-hasaacas-ladies-vs-ampem-darkoa-ladies',competition_id:'c2',home_team:'club:cl1',away_team:'club:cl2',match_date:'2026-06-24',general_notes:'Pitch quality poor — limited read on short build-up.',scout:'Artem',created_at:'2026-06-24T20:00:00Z',updated_at:'2026-06-24T20:00:00Z'});
+  demoDB.player_notes.push(
+   {id:'n2',match_report_id:'m2',player_id:'p2',note:'Defended crosses well; one mistimed close-up on a diagonal box entry; scooped passes partly forced by the pitch.',minutes:90,goals:0,assists:0,video_url:'',scout:'Artem',created_at:'2026-06-24T21:00:00Z',updated_at:'2026-06-24T21:00:00Z'});
+}
+async function dbList(table, opts={}){
+  if(DEMO){ let r=[...demoDB[table]]; if(opts.eq) for(const [k,v] of Object.entries(opts.eq)) r=r.filter(x=>x[k]===v); return r; }
+  let q = sb.from(table).select('*'); if(opts.eq) for(const [k,v] of Object.entries(opts.eq)) q=q.eq(k,v);
+  const {data,error}=await q; if(error){toast(error.message);return[];} return data;
+}
+async function dbInsert(table,row){
+  row.updated_by=state.scout; if(!row.scout) row.scout=state.scout;
+  if(DEMO){ row.id='d'+Math.random().toString(36).slice(2,9); row.created_at=row.updated_at=new Date().toISOString(); demoDB[table].push(row); return row; }
+  const {data,error}=await sb.from(table).insert(row).select().single(); if(error){toast(error.message);return null;} return data;
+}
+async function dbUpdate(table,id,patch){
+  patch.updated_at=new Date().toISOString(); patch.updated_by=state.scout;
+  if(DEMO){ const r=demoDB[table].find(x=>x.id===id); Object.assign(r,patch); return r; }
+  const {data,error}=await sb.from(table).update(patch).eq('id',id).select().single(); if(error){toast(error.message);return null;} return data;
+}
+async function dbDelete(table,id){
+  if(DEMO){ demoDB[table]=demoDB[table].filter(x=>x.id!==id); return true; }
+  const {error}=await sb.from(table).delete().eq('id',id); if(error){toast(error.message);return false;} return true;
+}
+
+/* ================= STATE / AUTH ================= */
+const state = { unlocked: sessionStorage.getItem('afs_unlocked')==='1', scout: sessionStorage.getItem('afs_scout')||'', filters:{q:'',country:'',pos:'',scout:'',status:''} };
+function requireUnlock(){ if(state.unlocked) return true; openUnlock(); return false; }
+function openUnlock(){
+  modal(`<h2>${t('unlock')}</h2>
+    <label>${t('password')}</label><input type="password" id="pw">
+    <label>${t('whoAreYou')}</label>
+    <select id="who">${SCOUTS.map(s=>`<option ${s===state.scout?'selected':''}>${s}</option>`).join('')}</select>
+    <div class="actions"><button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="okUnlock">${t('unlock')}</button></div>`,
+  el=>{ el.querySelector('#okUnlock').onclick=()=>{ if(el.querySelector('#pw').value!==WRITE_PASSWORD){toast(t('wrongPw'));return;}
+      state.unlocked=true; state.scout=el.querySelector('#who').value;
+      sessionStorage.setItem('afs_unlocked','1'); sessionStorage.setItem('afs_scout',state.scout);
+      closeModal(); renderHeader(); route(); };
+  });
+}
+/* ================= MODAL ================= */
+let modalEl=null;
+function modal(html, wire){
+  closeModal();
+  modalEl=document.createElement('div'); modalEl.className='modal-bg';
+  modalEl.innerHTML=`<div class="modal">${html}</div>`;
+  modalEl.addEventListener('click',e=>{ if(e.target===modalEl||e.target.dataset.close!==undefined&&e.target.hasAttribute('data-close')) closeModal(); });
+  document.body.appendChild(modalEl); if(wire) wire(modalEl.firstChild);
+}
+function closeModal(){ if(modalEl){modalEl.remove();modalEl=null;} }
+
+/* ================= COMBOBOX (type-ahead ≥2 chars) ================= */
+function combo(container,{placeholder,items,onPick,allowCreate,createLabel,value}){
+  container.classList.add('combo');
+  container.innerHTML=`<input type="text" placeholder="${esc(placeholder||t('typeToSearch'))}" value="${esc(value||'')}"><div class="dd"></div>`;
+  const inp=container.querySelector('input'), dd=container.querySelector('.dd');
+  let list=[];
+  function show(q){
+    const nq=norm(q);
+    if(nq.length<2){dd.style.display='none';return;}
+    const toks=nq.split(' ');
+    list=items().filter(it=>{const k=norm(it.search||it.label);return toks.every(tk=>k.includes(tk));}).slice(0,40);
+    dd.innerHTML=list.map((it,i)=>`<div data-i="${i}">${it.html||esc(it.label)}</div>`).join('') +
+      (allowCreate?`<div class="add" data-add>＋ ${t('createNew')} « ${esc(inp.value)} »</div>`:'');
+    dd.style.display='block';
+    dd.querySelectorAll('div[data-i]').forEach(d=>d.onclick=()=>{ const it=list[+d.dataset.i]; inp.value=it.label; dd.style.display='none'; onPick(it); });
+    const add=dd.querySelector('[data-add]'); if(add) add.onclick=()=>{ dd.style.display='none'; allowCreate(inp.value); };
+  }
+  inp.addEventListener('input',()=>show(inp.value));
+  inp.addEventListener('focus',()=>show(inp.value));
+  document.addEventListener('click',e=>{ if(!container.contains(e.target)) dd.style.display='none'; });
+  return { get:()=>inp.value, set:v=>inp.value=v, input:inp };
+}
+
+/* ================= ROUTER ================= */
+window.addEventListener('hashchange',route);
+function nav(h){ location.hash=h; }
+function renderHeader(){
+  const tabs=[['#/players',t('players')],['#/matches',t('matches')],['#/competitions',t('competitions')]];
+  $('#nav').innerHTML=tabs.map(([h,l])=>`<a href="${h}" class="${location.hash.startsWith(h)?'active':''}">${l}</a>`).join('');
+  $('#langBtn').textContent = LANG==='fr'?'EN':'FR';
+  $('#langBtn').onclick=()=>{ LANG=LANG==='fr'?'en':'fr'; localStorage.setItem('afs_lang',LANG); renderHeader(); route(); };
+  $('#lockBtn').textContent = state.unlocked? `🔓 ${state.scout}` : `🔒 ${t('unlock')}`;
+  $('#lockBtn').onclick=()=>{ if(state.unlocked){ state.unlocked=false; sessionStorage.removeItem('afs_unlocked'); renderHeader(); route(); } else openUnlock(); };
+  const db=$('#demoBanner');
+  if(DEMO){ db.style.display='block'; db.textContent = LANG==='fr' ? 'Mode démo — données d\u2019exemple en mémoire. Ajoutez vos clés Supabase dans index.html pour la version live.' : 'Demo mode — sample data in memory. Add your Supabase keys in index.html for the live version.'; }
+}
+async function route(){
+  renderHeader();
+  const h=location.hash||'#/players';
+  const app=$('#app'); app.innerHTML='<div class="empty">…</div>';
+  const [_,view,slug]=h.split('/');
+  if(view==='players'||!view) return viewPlayers();
+  if(view==='player') return viewPlayer(slug);
+  if(view==='matches') return viewMatches();
+  if(view==='match' && slug==='new') return viewMatchNew();
+  if(view==='match') return viewMatch(slug);
+  if(view==='competitions') return viewCompetitions();
+  if(view==='competition') return viewCompetition(slug);
+  if(view==='club') return viewClub(slug);
+  viewPlayers();
+}
+
+/* ================= CACHED LOOKUPS ================= */
+let CACHE={};
+async function loadAll(){
+  const [players,clubs,comps,matches,notes]=await Promise.all([dbList('players'),dbList('clubs'),dbList('competitions'),dbList('match_reports'),dbList('player_notes')]);
+  CACHE={players,clubs,comps,matches,notes,
+    clubById:Object.fromEntries(clubs.map(c=>[c.id,c])),
+    compById:Object.fromEntries(comps.map(c=>[c.id,c])),
+    playerById:Object.fromEntries(players.map(p=>[p.id,p])),
+    matchById:Object.fromEntries(matches.map(m=>[m.id,m]))};
+  return CACHE;
+}
+const teamDisplay = v => { if(!v) return ''; if(v.startsWith('club:')){const c=CACHE.clubById[v.slice(5)];return c?`${flag(c.country)} ${c.name}`:v;} return natTeamName(v); };
+const teamLink = v => { if(v&&v.startsWith('club:')){const c=CACHE.clubById[v.slice(5)]; if(c) return `<a href="#/club/${c.slug}">${teamDisplay(v)}</a>`;} return teamDisplay(v); };
+const lastObs = pid => { const ns=CACHE.notes.filter(n=>n.player_id===pid).map(n=>CACHE.matchById[n.match_report_id]).filter(Boolean); if(!ns.length) return null; return ns.map(m=>m.match_date).sort().reverse()[0]; };
+
+/* ================= VIEW: PLAYERS ================= */
+async function viewPlayers(){
+  await loadAll();
+  const f=state.filters;
+  const positions=[...new Set(CACHE.players.map(p=>p.position).filter(Boolean))].sort();
+  const countries=[...new Set(CACHE.players.map(p=>p.country).filter(Boolean))].sort();
+  const app=$('#app');
+  app.innerHTML=`
+   <div class="pagehead"><h1>${t('players')}</h1><span class="count" id="cnt"></span>
+     <span style="flex:1"></span>
+     <button class="btn primary" id="addP">${t('addPlayer')}</button>
+     <button class="btn" id="expBtn">${t('export')}</button></div>
+   <div class="toolbar">
+     <input type="search" id="q" placeholder="${t('search')}" value="${esc(f.q)}">
+     <select id="fc"><option value="">${t('allCountries')}</option>${countries.map(c=>`<option value="${c}" ${f.country===c?'selected':''}>${flag(c)} ${cName(c)}</option>`).join('')}</select>
+     <select id="fp"><option value="">${t('allPositions')}</option>${positions.map(p=>`<option ${f.pos===p?'selected':''}>${p}</option>`).join('')}</select>
+     <select id="fs"><option value="">${t('allScouts')}</option>${SCOUTS.map(s=>`<option ${f.scout===s?'selected':''}>${s}</option>`).join('')}</select>
+     <select id="ft"><option value="">${t('allStatus')}</option>${['watchlist','follow','recommend','pass'].map(s=>`<option value="${s}" ${f.status===s?'selected':''}>${t('status.'+s)}</option>`).join('')}</select>
+   </div>
+   <div class="grid" id="pgrid"></div>`;
+  const draw=()=>{
+    let ps=CACHE.players.filter(p=>
+      (!f.q||norm(p.name).includes(norm(f.q)))&&
+      (!f.country||p.country===f.country)&&(!f.pos||p.position===f.pos)&&
+      (!f.scout||p.scout===f.scout)&&(!f.status||p.status===f.status));
+    ps.sort((a,b)=>a.name.localeCompare(b.name));
+    $('#cnt').textContent=ps.length;
+    $('#pgrid').innerHTML=ps.length?ps.map(p=>{
+      const cl=p.club_id?CACHE.clubById[p.club_id]:null;
+      return `<a class="card" href="#/player/${p.slug}">
+        <span class="flag">${flag(p.country)}</span>
+        <span class="who"><span class="nm">${esc(p.name)}</span>
+          <span class="sub">${esc(p.position||'')}${p.birth_year?' · '+p.birth_year:''}${cl?' · '+esc(cl.name):''}</span>
+          <span class="badge ${p.status}">${t('status.'+p.status)}</span></span>
+        <span class="stub"><span class="rp">${p.rendement||'–'}/${p.potentiel||'–'}</span><span class="lb">R / P</span></span></a>`;
+    }).join(''):`<div class="empty" style="grid-column:1/-1"><b>${t('emptyPlayers')}</b>${t('emptyPlayersSub')}</div>`;
+  };
+  draw();
+  $('#q').oninput=e=>{f.q=e.target.value;draw();};
+  $('#fc').onchange=e=>{f.country=e.target.value;draw();};
+  $('#fp').onchange=e=>{f.pos=e.target.value;draw();};
+  $('#fs').onchange=e=>{f.scout=e.target.value;draw();};
+  $('#ft').onchange=e=>{f.status=e.target.value;draw();};
+  $('#addP').onclick=()=>{ if(!requireUnlock())return; quickAddPlayer(p=>nav('#/player/'+p.slug)); };
+  $('#expBtn').onclick=()=>{
+    const cols=['name','country','birth_date','position','foot','height','nt_level','status','rendement','potentiel','scout'];
+    const csv=[cols.join(',')].concat(CACHE.players.map(p=>cols.map(c=>`"${String(p[c]??'').replace(/"/g,'""')}"`).join(','))).join('\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='afroscout_players.csv'; a.click();
+  };
+}
+
+/* ================= QUICK-ADD PLAYER (with dup check) ================= */
+function quickAddPlayer(done,prefillName){
+  modal(`<h2>${t('quickAdd')}</h2>
+    <label>${t('name')} *</label><input id="qa_name" value="${esc(prefillName||'')}">
+    <div id="dup"></div>
+    <div class="row2">
+      <div><label>${t('country')} *</label><select id="qa_cc">${CAF.map(([cc])=>`<option value="${cc}">${flag(cc)} ${cName(cc)}</option>`).join('')}</select></div>
+      <div><label>${t('position')}</label><input id="qa_pos" placeholder="CB, ST, CM…"></div>
+    </div>
+    <div class="row2">
+      <div><label>${t('birthDate')}</label><input id="qa_dob" placeholder="jj/mm/aaaa"></div>
+      <div><label>${t('birthYear')}</label><input id="qa_by" type="number" min="1990" max="2015"></div>
+    </div>
+    <label>${t('club')}</label><div id="qa_club"></div>
+    <label>${t('basicInfo')}</label><textarea id="qa_info" placeholder="ex: 14 buts en qualifs CAF U20 (non vérifié)"></textarea>
+    <div class="actions"><button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="qa_ok">${t('save')}</button></div>`,
+  el=>{
+    let clubId=null;
+    combo(el.querySelector('#qa_club'),{placeholder:t('typeToSearch'),
+      items:()=>CACHE.clubs.map(c=>({label:`${flag(c.country)} ${c.name}`,id:c.id})),
+      onPick:it=>clubId=it.id,
+      allowCreate:async name=>{ const cc=el.querySelector('#qa_cc').value;
+        const club=await dbInsert('clubs',{slug:uniqSlug(slugify(name),CACHE.clubs),name,country:cc});
+        if(club){CACHE.clubs.push(club);CACHE.clubById[club.id]=club;clubId=club.id;el.querySelector('#qa_club input').value=`${flag(cc)} ${name}`;} }});
+    const nameI=el.querySelector('#qa_name'), dup=el.querySelector('#dup');
+    let forced=false;
+    nameI.addEventListener('input',()=>{ forced=false;
+      const n=normName(nameI.value);
+      const sim=n.length>3?CACHE.players.filter(p=>{const pn=normName(p.name);return pn===n||pn.includes(n)||n.includes(pn);}):[];
+      dup.innerHTML=sim.length?`<div class="dupwarn">${t('dupWarn')}<br>${sim.map(p=>`<div style="margin-top:6px">${flag(p.country)} <b>${esc(p.name)}</b> ${p.birth_year||''} — <a href="#" data-use="${p.slug}">${t('useExisting')}</a></div>`).join('')}<div style="margin-top:8px"><a href="#" data-force>${t('createAnyway')}</a></div></div>`:'';
+      dup.querySelectorAll('[data-use]').forEach(a=>a.onclick=e=>{e.preventDefault();closeModal();const p=CACHE.players.find(x=>x.slug===a.dataset.use);done(p,true);});
+      const fbtn=dup.querySelector('[data-force]'); if(fbtn) fbtn.onclick=e=>{e.preventDefault();forced=true;dup.innerHTML='';};
+    });
+    el.querySelector('#qa_ok').onclick=async()=>{
+      const name=nameI.value.trim(); if(!name){toast(t('required'));return;}
+      if(dup.innerHTML && !forced) return;
+      const cc=el.querySelector('#qa_cc').value;
+      const dob=parseDDMM(el.querySelector('#qa_dob').value);
+      const by=+el.querySelector('#qa_by').value || (dob?+dob.slice(0,4):null);
+      const p=await dbInsert('players',{slug:uniqSlug(slugify(name)+(by?'-'+by:''),CACHE.players),name,country:cc,
+        birth_date:dob,birth_year:by,position:el.querySelector('#qa_pos').value.trim(),club_id:clubId,
+        basic_info:el.querySelector('#qa_info').value.trim(),status:'watchlist'});
+      if(p){CACHE.players.push(p);CACHE.playerById[p.id]=p;closeModal();done(p);}
+    };
+  });
+}
+const uniqSlug=(base,arr)=>{let s=base,i=2;const has=x=>arr.some(o=>o.slug===x);while(has(s))s=`${base}-${i++}`;return s;};
+
+/* ================= VIEW: PLAYER ================= */
+async function viewPlayer(slug){
+  await loadAll();
+  const p=CACHE.players.find(x=>x.slug===slug);
+  if(!p){$('#app').innerHTML=`<div class="empty">404</div>`;return;}
+  const notes=CACHE.notes.filter(n=>n.player_id===p.id)
+    .map(n=>({...n,m:CACHE.matchById[n.match_report_id]})).filter(n=>n.m)
+    .sort((a,b)=>b.m.match_date.localeCompare(a.m.match_date));
+  // computed stats per competition
+  const agg={};
+  for(const n of notes){ const comp=n.m.competition_id?CACHE.compById[n.m.competition_id]:null; const key=comp?comp.name:t('scopeFriendly');
+    agg[key]??={mt:0,min:0,g:0,a:0}; agg[key].mt++; agg[key].min+=n.minutes||0; agg[key].g+=n.goals||0; agg[key].a+=n.assists||0; }
+  const club=p.club_id?CACHE.clubById[p.club_id]:null;
+  const vids=notes.filter(n=>n.video_url);
+  const F=k=>esc(p[k]||'');
+  $('#app').innerHTML=`
+   <div class="pagehead"><h1>${flag(p.country)} ${esc(p.name)}</h1>
+     <span class="badge ${p.status}">${t('status.'+p.status)}</span>
+     <span class="stub"><span class="rp">${p.rendement||'–'}/${p.potentiel||'–'}</span><span class="lb">R / P</span></span>
+     <span style="flex:1"></span>
+     <button class="btn small" id="cpy">${t('copyLink')}</button>
+     <button class="btn small primary" id="editBtn">${t('edit')}</button></div>
+   <div class="panel"><div class="kv">
+     <div><b>${t('born')}</b><span class="mono">${p.birth_date?fmtDate(p.birth_date):(p.birth_year||'—')}</span></div>
+     <div><b>${t('position')}</b><span>${F('position')}${p.position2?' / '+esc(p.position2):''}</span></div>
+     <div><b>${t('foot')}</b><span>${esc(tFoot(p.foot))||'—'}</span></div>
+     <div><b>${t('height')}</b><span class="mono">${p.height?p.height+' cm':'—'}</span></div>
+     <div><b>${t('club')}</b><span>${club?`<a href="#/club/${club.slug}">${esc(club.name)}</a>`:'—'}</span></div>
+     <div><b>${t('nt')}</b><span>${F('nt_level')||'—'}</span></div>
+   </div>${p.basic_info?`<p style="margin-top:12px;color:var(--muted);font-size:13.5px">ℹ️ ${t('basicInfo')}: ${esc(p.basic_info)}</p>`:''}</div>
+
+   <div class="panel evalblock"><h3>${t('evaluation')}</h3>
+    ${(p.rendement||p.opinions_projection||p.pf_technique)?`
+     <div class="kv" style="margin-bottom:10px">
+       <div><b>${t('rendement')}</b><span class="mono">${p.rendement??'—'} / 8</span></div>
+       <div><b>${t('potentiel')}</b><span class="mono">${p.potentiel??'—'} / 8</span></div>
+       <div><b>${t('benchmark')}</b><span>${F('benchmark')||'—'}</span></div>
+     </div><div class="hint">${t('ratingHint')}</div>
+     <h4>${t('strengths')} — ${t('technique')}</h4><p>${F('pf_technique')||'—'}</p>
+     <h4>${t('strengths')} — ${t('tactique')}</h4><p>${F('pf_tactique')||'—'}</p>
+     <h4>${t('strengths')} — ${t('mental')}</h4><p>${F('pf_mental')||'—'}</p>
+     <h4>${t('strengths')} — ${t('athletique')}</h4><p>${F('pf_athletique')||'—'}</p>
+     <h4>${t('axe')}</h4><p>${F('axe_amelioration')||'—'}</p>
+     <h4>${t('opinions')}</h4><p>${F('opinions_projection')||'—'}</p>
+     <p style="color:var(--muted);font-size:12px" class="mono">${t('by')} ${esc(p.scout||'')}${p.updated_by?` · ${t('editedBy')} ${esc(p.updated_by)} ${fmtDate(p.updated_at)}`:''}</p>`
+    :`<p style="color:var(--muted)">${t('noEval')}</p>`}</div>
+
+   ${Object.keys(agg).length?`<div class="panel"><h3>${t('statsBlock')}</h3><table><tr><th>${t('comp')}</th><th>${t('matchesN')}</th><th>${t('min')}</th><th>${t('goals')}</th><th>${t('assists')}</th></tr>
+     ${Object.entries(agg).map(([k,v])=>`<tr><td>${esc(k)}</td><td class="num">${v.mt}</td><td class="num">${v.min}</td><td class="num">${v.g}</td><td class="num">${v.a}</td></tr>`).join('')}</table></div>`:''}
+
+   <div class="panel"><h3>${t('obsLog')} (${notes.length})</h3>
+     ${notes.length?notes.map(n=>`<div class="obs">
+        <div class="meta">${fmtDate(n.m.match_date)} · <a href="#/match/${n.m.slug}">${teamDisplay(n.m.home_team)} vs ${teamDisplay(n.m.away_team)}</a> · ${esc(n.scout)}</div>
+        <div>${esc(n.note||'')}</div>
+        ${(n.minutes||n.goals||n.assists)?`<div class="stats">${n.minutes||0}' · ⚽ ${n.goals||0} · 🅰 ${n.assists||0}</div>`:''}
+        ${n.video_url?`<div><a href="${esc(n.video_url)}" target="_blank" rel="noopener">▶ video</a></div>`:''}
+      </div>`).join(''):`<div class="empty"><b>${t('noObs')}</b></div>`}</div>
+
+   ${vids.length?`<div class="panel"><h3>${t('videos')}</h3>${vids.map(n=>`<div>▶ <a href="${esc(n.video_url)}" target="_blank" rel="noopener">${esc(n.video_url)}</a> <span class="mono" style="color:var(--muted);font-size:12px">${fmtDate(n.m.match_date)}</span></div>`).join('')}</div>`:''}`;
+  $('#cpy').onclick=()=>{navigator.clipboard.writeText(location.href);toast(t('copied'));};
+  $('#editBtn').onclick=()=>{ if(!requireUnlock())return; editPlayer(p); };
+}
+
+function editPlayer(p){
+  const F=k=>esc(p[k]||'');
+  modal(`<h2>${t('edit')} — ${esc(p.name)}</h2>
+    <div class="row2">
+      <div><label>${t('name')}</label><input id="e_name" value="${esc(p.name)}"></div>
+      <div><label>${t('country')}</label><select id="e_cc">${CAF.map(([cc])=>`<option value="${cc}" ${p.country===cc?'selected':''}>${flag(cc)} ${cName(cc)}</option>`).join('')}</select></div>
+    </div>
+    <div class="row3">
+      <div><label>${t('position')}</label><input id="e_pos" value="${F('position')}"></div>
+      <div><label>${t('foot')}</label><select id="e_foot">${['','Right','Left','Both'].map(v=>`<option value="${v}" ${(p.foot===v||(v==='Right'&&p.foot==='Droit')||(v==='Left'&&p.foot==='Gauche'))?'selected':''}>${v?tFoot(v):'—'}</option>`).join('')}</select></div>
+      <div><label>${t('height')} (cm)</label><input id="e_h" type="number" value="${p.height||''}"></div>
+    </div>
+    <div class="row2">
+      <div><label>${t('club')}</label><select id="e_club"><option value="">—</option>${[...CACHE.clubs].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}" ${p.club_id===c.id?'selected':''}>${flag(c.country)} ${esc(c.name)}</option>`).join('')}</select></div>
+      <div></div>
+    </div>
+    <div class="row2">
+      <div><label>${t('birthDate')}</label><input id="e_dob" value="${p.birth_date?fmtDate(p.birth_date):''}"></div>
+      <div><label>${t('nt')}</label><input id="e_nt" value="${F('nt_level')}"></div>
+    </div>
+    <label>Status</label><select id="e_st">${['watchlist','follow','recommend','pass'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${t('status.'+s)}</option>`).join('')}</select>
+    <div class="row3">
+      <div><label>${t('rendement')} (1–8)</label><input id="e_r" type="number" min="1" max="8" value="${p.rendement||''}"></div>
+      <div><label>${t('potentiel')} (1–8)</label><input id="e_p" type="number" min="1" max="8" value="${p.potentiel||''}"></div>
+      <div><label>${t('benchmark')}</label><input id="e_b" value="${F('benchmark')}" placeholder="U17 / senior / club tier"></div>
+    </div>
+    <div class="hint">${t('ratingHint')}</div>
+    <label>${t('strengths')} — ${t('technique')}</label><textarea id="e_t1">${F('pf_technique')}</textarea>
+    <label>${t('strengths')} — ${t('tactique')}</label><textarea id="e_t2">${F('pf_tactique')}</textarea>
+    <label>${t('strengths')} — ${t('mental')}</label><textarea id="e_t3">${F('pf_mental')}</textarea>
+    <label>${t('strengths')} — ${t('athletique')}</label><textarea id="e_t4">${F('pf_athletique')}</textarea>
+    <label>${t('axe')}</label><textarea id="e_axe">${F('axe_amelioration')}</textarea>
+    <label>${t('opinions')}</label><textarea id="e_op">${F('opinions_projection')}</textarea>
+    <label>${t('basicInfo')}</label><textarea id="e_info">${F('basic_info')}</textarea>
+    <label>Photo URL</label><input id="e_ph" value="${F('photo_url')}">
+    <div class="actions">
+      <button class="btn danger" id="e_del">${t('delete')}</button><span style="flex:1"></span>
+      <button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="e_ok">${t('save')}</button></div>`,
+  el=>{
+    el.querySelector('#e_ok').onclick=async()=>{
+      const patch={name:el.querySelector('#e_name').value.trim(),country:el.querySelector('#e_cc').value,
+        position:el.querySelector('#e_pos').value.trim(),foot:el.querySelector('#e_foot').value,
+        club_id:el.querySelector('#e_club').value||null,
+        height:+el.querySelector('#e_h').value||null,birth_date:parseDDMM(el.querySelector('#e_dob').value),
+        nt_level:el.querySelector('#e_nt').value.trim(),status:el.querySelector('#e_st').value,
+        rendement:+el.querySelector('#e_r').value||null,potentiel:+el.querySelector('#e_p').value||null,
+        benchmark:el.querySelector('#e_b').value.trim(),
+        pf_technique:el.querySelector('#e_t1').value,pf_tactique:el.querySelector('#e_t2').value,
+        pf_mental:el.querySelector('#e_t3').value,pf_athletique:el.querySelector('#e_t4').value,
+        axe_amelioration:el.querySelector('#e_axe').value,opinions_projection:el.querySelector('#e_op').value,
+        basic_info:el.querySelector('#e_info').value,photo_url:el.querySelector('#e_ph').value.trim()};
+      if(patch.birth_date) patch.birth_year=+patch.birth_date.slice(0,4);
+      await dbUpdate('players',p.id,patch); closeModal(); route();
+    };
+    el.querySelector('#e_del').onclick=async()=>{ if(!confirm(t('confirmDelete')))return; await dbDelete('players',p.id); closeModal(); nav('#/players'); };
+  });
+}
+
+/* ================= VIEW: MATCHES ================= */
+async function viewMatches(){
+  await loadAll();
+  const ms=[...CACHE.matches].sort((a,b)=>b.match_date.localeCompare(a.match_date));
+  $('#app').innerHTML=`
+   <div class="pagehead"><h1>${t('matches')}</h1><span class="count">${ms.length}</span><span style="flex:1"></span>
+     <button class="btn primary" id="newM">${t('newMatch')}</button></div>
+   ${ms.length?`<div class="grid">${ms.map(m=>{
+      const comp=m.competition_id?CACHE.compById[m.competition_id]:null;
+      const nn=CACHE.notes.filter(n=>n.match_report_id===m.id).length;
+      return `<a class="card" href="#/match/${m.slug}"><span class="who">
+        <span class="nm">${teamDisplay(m.home_team)} vs ${teamDisplay(m.away_team)}</span>
+        <span class="sub mono">${fmtDate(m.match_date)} · ${comp?esc(comp.name):t('scopeFriendly')} · ${esc(m.scout)}</span></span>
+        <span class="stub"><span class="rp">${nn}</span><span class="lb">${t('playersNoted').split(' ')[0]}</span></span></a>`;
+    }).join('')}</div>`
+   :`<div class="empty"><b>${t('emptyMatches')}</b>${t('emptyMatchesSub')}</div>`}`;
+  $('#newM').onclick=()=>{ if(!requireUnlock())return; nav('#/match/new'); };
+}
+
+/* ================= VIEW: NEW MATCH REPORT ================= */
+async function viewMatchNew(){
+  if(!state.unlocked){ openUnlock(); nav('#/matches'); return; }
+  await loadAll();
+  const app=$('#app');
+  const model={scope:'country',country:'',competition_id:null,home:'',away:'',date:'',general:'',notes:[]};
+  app.innerHTML=`
+   <div class="pagehead"><h1>${t('matchReport')}</h1></div>
+   <div class="panel">
+     <label>${t('scope')}</label>
+     <select id="m_scope">
+       <option value="country">${t('scopeCountry')}</option><option value="continental">${t('scopeCont')}</option>
+       <option value="international">${t('scopeIntl')}</option><option value="friendly">${t('scopeFriendly')}</option></select>
+     <div id="ccWrap" style="display:block"><label>${t('country')}</label>
+       <select id="m_cc"><option value="">—</option>${CAF.map(([cc])=>`<option value="${cc}">${flag(cc)} ${cName(cc)}</option>`).join('')}</select></div>
+     <div id="compWrap"><label>${t('comp')}</label><div id="m_comp"></div></div>
+     <div class="row2">
+       <div><label>${t('homeTeam')} *</label><div id="m_home"></div></div>
+       <div><label>${t('awayTeam')} *</label><div id="m_away"></div></div>
+     </div>
+     <label>${t('date')} *</label><input id="m_date" placeholder="jj/mm/aaaa" class="mono" style="max-width:180px">
+     <label>${t('generalNotes')}</label><textarea id="m_gen"></textarea>
+   </div>
+   <div class="panel"><h3>${t('playersObserved')}</h3>
+     <div id="noteList"></div>
+     <button class="btn" id="addNote">${t('addNote')}</button>
+   </div>
+   <div class="actions"><button class="btn" onclick="nav('#/matches')">${t('cancel')}</button>
+     <button class="btn primary" id="m_save">${t('save')}</button></div>`;
+
+  /* competition combo (depends on scope+country) */
+  const compItems=()=>{
+    const existing=CACHE.comps.filter(c=>{
+      if(model.scope==='country') return c.scope==='country'&&c.country===model.country;
+      return c.scope===model.scope;
+    }).map(c=>({label:c.name,id:c.id,search:`${norm(c.name)} ${c.country?cSearch(c.country):''}`,html:esc(c.name)}));
+    const names=new Set(existing.map(e=>e.label));
+    let pre=[];
+    if(model.scope==='country'&&model.country) pre=[`${cName(model.country)}-1`];
+    if(model.scope==='continental') pre=CONT_COMPS;
+    if(model.scope==='international') pre=INTL_COMPS;
+    for(const n of pre) if(!names.has(n)) existing.push({label:n,pre:true,search:`${norm(n)} ${model.country?cSearch(model.country):''}`,html:`${esc(n)} <span style="color:var(--muted);font-size:11px">·</span>`});
+    return existing;
+  };
+  let compCombo;
+  function mountComp(){
+    const wrap=$('#compWrap'); wrap.style.display=model.scope==='friendly'?'none':'block';
+    if(model.scope==='friendly'){model.competition_id=null;return;}
+    compCombo=combo($('#m_comp'),{placeholder:t('selectCompetition'),items:compItems,
+      onPick:async it=>{
+        if(it.id){model.competition_id=it.id;return;}
+        const c=await dbInsert('competitions',{slug:uniqSlug(slugify(it.label),CACHE.comps),name:it.label,scope:model.scope,country:model.scope==='country'?model.country:null});
+        if(c){CACHE.comps.push(c);CACHE.compById[c.id]=c;model.competition_id=c.id;}
+      },
+      allowCreate:async name=>{
+        const c=await dbInsert('competitions',{slug:uniqSlug(slugify(name),CACHE.comps),name,scope:model.scope,country:model.scope==='country'?model.country:null});
+        if(c){CACHE.comps.push(c);CACHE.compById[c.id]=c;model.competition_id=c.id;compCombo.set(name);}
+      }});
+  }
+  /* team combos: national teams + clubs + quick-add */
+  const teamItems=()=>{
+    const nats=NAT_TEAMS.map(nt=>{ const m=nt.key.match(/^([A-Z]{2})(?:-(U\d+))?$/); const cc=m?m[1]:'', age=m&&m[2]?m[2]:'';
+      return {label:natTeamName(nt.key).replace(/^\S+\s/,''),value:nt.key,search:`${cSearch(cc)} ${age.toLowerCase()}`,html:natTeamName(nt.key)}; });
+    const clubs=CACHE.clubs.map(c=>({label:c.name,value:'club:'+c.id,search:`${norm(c.name)} ${cSearch(c.country||'')}`,html:`${flag(c.country)} ${esc(c.name)} <span style="color:var(--muted);font-size:11px">club</span>`}));
+    return [...clubs,...nats];
+  };
+  function mountTeam(sel,key){
+    combo($(sel),{placeholder:t('selectTeam'),items:teamItems,
+      onPick:it=>model[key]=it.value,
+      allowCreate:async name=>{ // quick-add club; country only known when scope=country
+        const club=await dbInsert('clubs',{slug:uniqSlug(slugify(name),CACHE.clubs),name,country:model.scope==='country'?model.country:null});
+        if(club){CACHE.clubs.push(club);CACHE.clubById[club.id]=club;model[key]='club:'+club.id;$(sel+' input').value=name;}
+      }});
+  }
+  mountComp(); mountTeam('#m_home','home'); mountTeam('#m_away','away');
+  $('#m_scope').onchange=e=>{model.scope=e.target.value;model.competition_id=null;
+    $('#ccWrap').style.display=model.scope==='country'?'block':'none'; mountComp();};
+  $('#m_cc').onchange=e=>{model.country=e.target.value;model.competition_id=null;mountComp();};
+
+  /* player notes */
+  function drawNotes(){
+    const list=$('#noteList');
+    list.innerHTML=model.notes.map((n,i)=>{
+      const p=CACHE.playerById[n.player_id];
+      return `<div class="noterow">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <b>${flag(p.country)} ${esc(p.name)}</b>
+          <button class="btn small danger" data-del="${i}">✕</button></div>
+        <label>${t('note')}</label><textarea data-note="${i}">${esc(n.note)}</textarea>
+        <div class="row3">
+          <div><label>${t('min')}</label><input type="number" data-min="${i}" value="${n.minutes??''}"></div>
+          <div><label>${t('goals')}</label><input type="number" data-g="${i}" value="${n.goals??''}"></div>
+          <div><label>${t('assists')}</label><input type="number" data-a="${i}" value="${n.assists??''}"></div>
+        </div>
+        <label>${t('videoUrl')}</label><input data-v="${i}" value="${esc(n.video_url||'')}">
+      </div>`;
+    }).join('');
+    list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{model.notes.splice(+b.dataset.del,1);drawNotes();});
+    list.querySelectorAll('[data-note]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.note].note=x.value);
+    list.querySelectorAll('[data-min]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.min].minutes=+x.value||null);
+    list.querySelectorAll('[data-g]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.g].goals=+x.value||null);
+    list.querySelectorAll('[data-a]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.a].assists=+x.value||null);
+    list.querySelectorAll('[data-v]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.v].video_url=x.value);
+  }
+  $('#addNote').onclick=()=>{
+    modal(`<h2>${t('selectPlayer')}</h2><div id="pp"></div>
+      <div class="actions"><button class="btn" data-close>${t('cancel')}</button></div>`,
+    el=>{ combo(el.querySelector('#pp'),{placeholder:t('typeToSearch'),
+        items:()=>CACHE.players.map(p=>({label:p.name,id:p.id,html:`${flag(p.country)} ${esc(p.name)} <span style="color:var(--muted);font-size:11px">${esc(p.position||'')} ${p.birth_year||''}</span>`})),
+        onPick:it=>{model.notes.push({player_id:it.id,note:'',minutes:null,goals:null,assists:null,video_url:''});closeModal();drawNotes();},
+        allowCreate:name=>{closeModal();quickAddPlayer(p=>{model.notes.push({player_id:p.id,note:'',minutes:null,goals:null,assists:null,video_url:''});drawNotes();},name);}});
+      el.querySelector('#pp input').focus();
+    });
+  };
+  $('#m_save').onclick=async()=>{
+    const date=parseDDMM($('#m_date').value);
+    if(!model.home||!model.away||!date){toast(t('saveFirst'));return;}
+    const slugBase=`${date}-${slugify(teamDisplay(model.home))}-vs-${slugify(teamDisplay(model.away))}`;
+    const m=await dbInsert('match_reports',{slug:uniqSlug(slugBase,CACHE.matches),competition_id:model.competition_id,
+      home_team:model.home,away_team:model.away,match_date:date,general_notes:$('#m_gen').value});
+    if(!m)return;
+    for(const n of model.notes) await dbInsert('player_notes',{match_report_id:m.id,player_id:n.player_id,note:n.note,minutes:n.minutes,goals:n.goals,assists:n.assists,video_url:n.video_url});
+    nav('#/match/'+m.slug);
+  };
+}
+
+/* ================= VIEW: MATCH ================= */
+async function viewMatch(slug){
+  await loadAll();
+  const m=CACHE.matches.find(x=>x.slug===slug);
+  if(!m){$('#app').innerHTML='<div class="empty">404</div>';return;}
+  const comp=m.competition_id?CACHE.compById[m.competition_id]:null;
+  const notes=CACHE.notes.filter(n=>n.match_report_id===m.id);
+  $('#app').innerHTML=`
+   <div class="pagehead"><h1>${teamLink(m.home_team)} <span style="color:var(--muted)">vs</span> ${teamLink(m.away_team)}</h1>
+     <span style="flex:1"></span><button class="btn small" id="cpy">${t('copyLink')}</button>
+     ${state.unlocked?`<button class="btn small danger" id="delM">${t('delete')}</button>`:''}</div>
+   <div class="panel"><div class="kv">
+     <div><b>${t('date')}</b><span class="mono">${fmtDate(m.match_date)}</span></div>
+     <div><b>${t('comp')}</b><span>${comp?`<a href="#/competition/${comp.slug}">${esc(comp.name)}</a>`:t('scopeFriendly')}</span></div>
+     <div><b>Scout</b><span>${esc(m.scout)}</span></div>
+   </div>${m.general_notes?`<p style="margin-top:10px">${esc(m.general_notes)}</p>`:''}</div>
+   <div class="panel"><h3>${t('playersObserved')} (${notes.length})</h3>
+    ${notes.map(n=>{const p=CACHE.playerById[n.player_id];return `<div class="obs">
+      <div class="meta"><a href="#/player/${p.slug}">${flag(p.country)} ${esc(p.name)}</a> · ${esc(n.scout)}</div>
+      <div>${esc(n.note||'')}</div>
+      ${(n.minutes||n.goals||n.assists)?`<div class="stats">${n.minutes||0}' · ⚽ ${n.goals||0} · 🅰 ${n.assists||0}</div>`:''}
+      ${n.video_url?`<div><a href="${esc(n.video_url)}" target="_blank" rel="noopener">▶ video</a></div>`:''}
+    </div>`;}).join('')||`<div class="empty">—</div>`}</div>`;
+  $('#cpy').onclick=()=>{navigator.clipboard.writeText(location.href);toast(t('copied'));};
+  const del=$('#delM'); if(del) del.onclick=async()=>{ if(!confirm(t('confirmDelete')))return; await dbDelete('match_reports',m.id); nav('#/matches'); };
+}
+
+/* ================= VIEW: COMPETITIONS (coverage map) ================= */
+async function viewCompetitions(){
+  await loadAll();
+  const rows=CACHE.comps.map(c=>{
+    const ms=CACHE.matches.filter(m=>m.competition_id===c.id);
+    const ns=CACHE.notes.filter(n=>ms.some(m=>m.id===n.match_report_id));
+    return {c,matches:ms.length,players:new Set(ns.map(n=>n.player_id)).size,scouts:new Set(ms.map(m=>m.scout)).size};
+  }).filter(r=>r.matches>0).sort((a,b)=>b.matches-a.matches);
+  $('#app').innerHTML=`
+   <div class="pagehead"><h1>${t('competitions')}</h1><span class="count">${rows.length}</span></div>
+   ${rows.length?`<div class="grid">${rows.map(r=>`<a class="card" href="#/competition/${r.c.slug}">
+      <span class="flag">${r.c.scope==='country'?flag(r.c.country):r.c.scope==='international'?'🌍':'🌍'}</span>
+      <span class="who"><span class="nm">${esc(r.c.name)}</span>
+        <span class="sub mono">${r.matches} ${t('matchesN').toLowerCase()} · ${r.players} ${t('playersNoted').toLowerCase()} · ${r.scouts} ${t('scoutsPart').toLowerCase()}</span></span></a>`).join('')}</div>`
+   :`<div class="empty"><b>${t('emptyComps')}</b>${t('emptyCompsSub')}</div>`}`;
+}
+async function viewCompetition(slug){
+  await loadAll();
+  const c=CACHE.comps.find(x=>x.slug===slug);
+  if(!c){$('#app').innerHTML='<div class="empty">404</div>';return;}
+  const ms=CACHE.matches.filter(m=>m.competition_id===c.id).sort((a,b)=>b.match_date.localeCompare(a.match_date));
+  const ns=CACHE.notes.filter(n=>ms.some(m=>m.id===n.match_report_id));
+  const players=[...new Set(ns.map(n=>n.player_id))].map(id=>CACHE.playerById[id]).filter(Boolean);
+  const teams=[...new Set(ms.flatMap(m=>[m.home_team,m.away_team]))];
+  $('#app').innerHTML=`
+   <div class="pagehead"><h1>${esc(c.name)}</h1><span style="flex:1"></span><button class="btn small" id="cpy">${t('copyLink')}</button></div>
+   <div class="panel"><h3>${t('coverage')}</h3><div class="kv">
+     <div><b>${t('matchesN')}</b><span class="mono">${ms.length}</span></div>
+     <div><b>${t('teamsSeen')}</b><span class="mono">${teams.length}</span></div>
+     <div><b>${t('playersNoted')}</b><span class="mono">${players.length}</span></div>
+   </div><p style="margin-top:10px">${teams.map(teamLink).join(' · ')}</p></div>
+   <div class="panel"><h3>${t('matchesN')}</h3>
+     ${ms.map(m=>`<div class="obs"><div class="meta">${fmtDate(m.match_date)} · ${esc(m.scout)}</div>
+       <a href="#/match/${m.slug}">${teamDisplay(m.home_team)} vs ${teamDisplay(m.away_team)}</a></div>`).join('')}</div>
+   <div class="panel"><h3>${t('playersNoted')}</h3><div class="grid">
+     ${players.map(p=>`<a class="card" href="#/player/${p.slug}"><span class="flag">${flag(p.country)}</span>
+       <span class="who"><span class="nm">${esc(p.name)}</span><span class="sub">${esc(p.position||'')} ${p.birth_year||''}</span></span></a>`).join('')}</div></div>`;
+  $('#cpy').onclick=()=>{navigator.clipboard.writeText(location.href);toast(t('copied'));};
+}
+
+/* ================= VIEW: CLUB ================= */
+async function viewClub(slug){
+  await loadAll();
+  const c=CACHE.clubs.find(x=>x.slug===slug);
+  if(!c){$('#app').innerHTML='<div class="empty">404</div>';return;}
+  const roster=CACHE.players.filter(p=>p.club_id===c.id);
+  const key='club:'+c.id;
+  const ms=CACHE.matches.filter(m=>m.home_team===key||m.away_team===key).sort((a,b)=>b.match_date.localeCompare(a.match_date));
+  $('#app').innerHTML=`
+   <div class="pagehead"><h1>${flag(c.country)} ${esc(c.name)}</h1><span style="flex:1"></span><button class="btn small" id="cpy">${t('copyLink')}</button></div>
+   <div class="panel"><h3>${t('roster')} (${roster.length})</h3><div class="grid">
+     ${roster.map(p=>`<a class="card" href="#/player/${p.slug}"><span class="flag">${flag(p.country)}</span>
+       <span class="who"><span class="nm">${esc(p.name)}</span><span class="sub">${esc(p.position||'')} ${p.birth_year||''}</span></span></a>`).join('')||'—'}</div></div>
+   <div class="panel"><h3>${t('matchHistory')} (${ms.length})</h3>
+     ${ms.map(m=>`<div class="obs"><div class="meta">${fmtDate(m.match_date)}</div>
+       <a href="#/match/${m.slug}">${teamDisplay(m.home_team)} vs ${teamDisplay(m.away_team)}</a></div>`).join('')||'—'}</div>`;
+  $('#cpy').onclick=()=>{navigator.clipboard.writeText(location.href);toast(t('copied'));};
+}
+
+/* ================= BOOT ================= */
+if(DEMO) seedDemo();
+if(!location.hash) location.hash='#/players';
+route();
+</script>
+</body>
+</html>
