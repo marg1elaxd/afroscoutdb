@@ -128,8 +128,8 @@ td.num{font-family:'IBM Plex Mono',monospace}
 
 <script>
 /* ================= CONFIG ================= */
-const SUPABASE_URL  = 'https://zqixynozpazqmqxzmdon.supabase.co';        // e.g. https://xxxx.supabase.co
-const SUPABASE_KEY  = 'sb_publishable_zNLJteV89hJJL9lnqsQstg_-_-7EjDj';
+const SUPABASE_URL  = 'YOUR-SUPABASE-URL';        // e.g. https://xxxx.supabase.co
+const SUPABASE_KEY  = 'YOUR-SUPABASE-ANON-KEY';
 const WRITE_PASSWORD = 'afroscout1';               // change before sharing
 const SCOUTS = ['Artem','Kingsley','Jason'];
 const DEMO = SUPABASE_URL.startsWith('YOUR');
@@ -146,11 +146,11 @@ const I18N = {
   ratingHint:'1 = meilleur niveau · 8 = plus faible',
   strengths:'Points forts',technique:'Technique',tactique:'Tactique',mental:'Mental',athletique:'Athlétique',
   axe:'Axe d\u2019amélioration',opinions:'Opinions & projection',
-  obsLog:'Journal d\u2019observations',statsBlock:'Stats (matchs observés)',basicInfo:'Infos non vérifiées',
+  obsLog:'Journal d\u2019observations',statsBlock:'Stats (matchs observés)',basicInfo:'Style',
   comp:'Compétition',min:'Min',goals:'Buts',assists:'Passes déc.',matchesN:'Matchs',
   edit:'Modifier',save:'Enregistrer',cancel:'Annuler',delete:'Supprimer',copyLink:'Copier le lien',copied:'Lien copié',
   unlock:'Déverrouiller',lock:'Verrouiller',whoAreYou:'Qui êtes-vous ?',password:'Mot de passe',wrongPw:'Mot de passe incorrect',
-  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Pays',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Amical / Autre',
+  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Championnat domestique',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Amical / Autre',
   homeTeam:'Équipe A',awayTeam:'Équipe B',date:'Date',generalNotes:'Notes générales (contexte, terrain…)',
   playersObserved:'Joueuses observées',addNote:'+ Ajouter une joueuse',note:'Observation',videoUrl:'Lien vidéo (match, highlights…)',
   quickAdd:'Nouvelle joueuse',dupWarn:'Profils similaires trouvés — est-ce la même joueuse ?',useExisting:'Utiliser',createAnyway:'Créer quand même',
@@ -163,7 +163,7 @@ const I18N = {
   confirmDelete:'Supprimer définitivement ?',required:'Champ requis',saveFirst:'Choisissez la compétition et les équipes d\u2019abord',
   selectCompetition:'Choisir la compétition…',selectTeam:'Équipe…',selectPlayer:'Joueuse…',
   videos:'Vidéos',openMatch:'Voir le match',roster:'Effectif lié',matchHistory:'Matchs',
-  noEval:'Pas encore d\u2019évaluation — les notes de match s\u2019accumulent ici avant la synthèse.'},
+  noEval:'Pas encore d\u2019évaluation — les notes de match s\u2019accumulent ici avant la synthèse.',generalNote:'Note générale',attachTitle:'Rapports PDF',tier:'Niveau (tier)',newClub:'+ Nouveau club',photoFile:'ou téléverser un fichier :',fileTooBig:'Fichier trop volumineux (max 10 Mo)',editObs:'Modifier l\u2019observation'},
  en:{players:'Players',matches:'Matches',competitions:'Competitions',clubs:'Clubs',
   search:'Search a player…',allCountries:'All countries',allPositions:'All positions',allScouts:'All scouts',allStatus:'All statuses',
   addPlayer:'+ Player',newMatch:'+ Match report',export:'Export CSV',
@@ -173,11 +173,11 @@ const I18N = {
   ratingHint:'1 = best · 8 = weakest',
   strengths:'Strengths',technique:'Technical',tactique:'Tactical',mental:'Mental',athletique:'Athletic',
   axe:'Area for improvement',opinions:'Opinions & projection',
-  obsLog:'Observation log',statsBlock:'Stats (observed matches)',basicInfo:'Unverified info',
+  obsLog:'Observation log',statsBlock:'Stats (observed matches)',basicInfo:'Style',
   comp:'Competition',min:'Min',goals:'Goals',assists:'Assists',matchesN:'Matches',
   edit:'Edit',save:'Save',cancel:'Cancel',delete:'Delete',copyLink:'Copy link',copied:'Link copied',
   unlock:'Unlock',lock:'Lock',whoAreYou:'Who are you?',password:'Password',wrongPw:'Wrong password',
-  matchReport:'Match report',scope:'Scope',scopeCountry:'Country',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Friendly / Other',
+  matchReport:'Match report',scope:'Scope',scopeCountry:'Domestic league',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Friendly / Other',
   homeTeam:'Team A',awayTeam:'Team B',date:'Date',generalNotes:'General notes (context, pitch…)',
   playersObserved:'Players observed',addNote:'+ Add player',note:'Observation',videoUrl:'Video link (match, highlights…)',
   quickAdd:'New player',dupWarn:'Similar profiles found — same player?',useExisting:'Use',createAnyway:'Create anyway',
@@ -190,7 +190,7 @@ const I18N = {
   confirmDelete:'Delete permanently?',required:'Required field',saveFirst:'Pick the competition and teams first',
   selectCompetition:'Pick competition…',selectTeam:'Team…',selectPlayer:'Player…',
   videos:'Videos',openMatch:'Open match',roster:'Linked squad',matchHistory:'Matches',
-  noEval:'No evaluation yet — match notes accumulate here before the synthesis.'}
+  noEval:'No evaluation yet — match notes accumulate here before the synthesis.',generalNote:'General note',attachTitle:'PDF reports',tier:'Tier',newClub:'+ New club',photoFile:'or upload a file:',fileTooBig:'File too large (max 10 MB)',editObs:'Edit observation'}
 };
 let LANG = localStorage.getItem('afs_lang') || 'fr';
 const t = k => { const o=I18N[LANG]; return k.split('.').reduce((a,b)=>a&&a[b],o) ?? k; };
@@ -219,7 +219,12 @@ const cSearch = cc => { const r=CAF.find(x=>x[0]===cc); return r ? norm(`${r[1]}
 const cName = cc => { const r=CAF.find(x=>x[0]===cc); return r ? (LANG==='fr'?r[2]:r[1]) : cc; };
 const FOOT_FR={Right:'Droit',Left:'Gauche',Both:'Deux pieds'};
 const tFoot = v => { if(!v) return ''; const c=v==='Droit'?'Right':v==='Gauche'?'Left':v; return LANG==='fr'?(FOOT_FR[c]||v):c; };
-const NAT_TEAMS = CAF.flatMap(([cc,en,fr])=>['','U20','U17','U15'].map(l=>({cc,label:l,key:`${cc}${l?'-'+l:''}`})));
+const readFileAsDataURL=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});
+async function resizePhoto(file,maxDim=400){const url=await readFileAsDataURL(file);return new Promise(res=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,maxDim/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*sc)||1;cv.height=Math.round(img.height*sc)||1;cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);res(cv.toDataURL('image/jpeg',0.8));};img.onerror=()=>res(url);img.src=url;});}
+function openDataUrl(d){try{const [meta,b64]=d.split(',');const mime=(meta.match(/data:([^;]+)/)||[])[1]||'application/pdf';const bin=atob(b64);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);window.open(URL.createObjectURL(new Blob([arr],{type:mime})),'_blank');}catch(e){window.open(d,'_blank');}}
+const CORNERS=[['note_technique','technique'],['note_tactique','tactique'],['note_mental','mental'],['note_athletique','athletique']];
+const noteBody=n=>{let h='';if(n.note)h+=`<div>${esc(n.note)}</div>`;h+=CORNERS.filter(([k])=>n[k]).map(([k,l])=>`<div style="margin-top:4px"><span class="mono" style="color:var(--pink);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">${t(l)}</span><br>${esc(n[k])}</div>`).join('');return h;};
+const NAT_TEAMS = CAF.flatMap(([cc,en,fr])=>['','U20','U18','U17','U15'].map(l=>({cc,label:l,key:`${cc}${l?'-'+l:''}`})));
 const natTeamName = k => { const m=k.match(/^([A-Z]{2})(?:-(U\d+))?$/); if(!m) return k; return `${flag(m[1])} ${cName(m[1])}${m[2]?' '+m[2]:''}`; };
 const CONT_COMPS = ["WAFCON","WAFCON Qualifiers","WWC Qualifiers (CAF)","Olympic Qualifiers (CAF)","CAF Women's Champions League","CAF WCL Zonal Qualifiers","U20 WWC Qualifiers (CAF)","U17 WWC Qualifiers (CAF)","CECAFA Championship","CECAFA U20","CECAFA U17","COSAFA Championship","COSAFA U20","COSAFA U17","WAFU A Championship","WAFU B Championship","UNIFFAC Championship","African Games"];
 const INTL_COMPS = ["FIFA Women's World Cup","FIFA U20 Women's World Cup","FIFA U17 Women's World Cup","Olympic Games"];
@@ -234,7 +239,7 @@ const toast = msg => { const el=document.createElement('div'); el.className='toa
 const normName = s => slugify(s).split('-').sort().join(' ');
 
 /* ================= DATA LAYER (supabase or demo) ================= */
-const demoDB = { players:[],clubs:[],competitions:[],match_reports:[],player_notes:[] };
+const demoDB = { players:[],clubs:[],competitions:[],match_reports:[],player_notes:[],attachments:[] };
 function seedDemo(){
   const c2={id:'c2',slug:'ghana-1',name:'Ghana-1',scope:'country',country:'GH',scout:'Artem'};
   demoDB.competitions.push(c2);
@@ -348,8 +353,8 @@ async function route(){
 /* ================= CACHED LOOKUPS ================= */
 let CACHE={};
 async function loadAll(){
-  const [players,clubs,comps,matches,notes]=await Promise.all([dbList('players'),dbList('clubs'),dbList('competitions'),dbList('match_reports'),dbList('player_notes')]);
-  CACHE={players,clubs,comps,matches,notes,
+  const [players,clubs,comps,matches,notes,attachments]=await Promise.all([dbList('players'),dbList('clubs'),dbList('competitions'),dbList('match_reports'),dbList('player_notes'),dbList('attachments')]);
+  CACHE={players,clubs,comps,matches,notes,attachments,
     clubById:Object.fromEntries(clubs.map(c=>[c.id,c])),
     compById:Object.fromEntries(comps.map(c=>[c.id,c])),
     playerById:Object.fromEntries(players.map(p=>[p.id,p])),
@@ -425,7 +430,7 @@ function quickAddPlayer(done,prefillName){
       <div><label>${t('birthYear')}</label><input id="qa_by" type="number" min="1990" max="2015"></div>
     </div>
     <label>${t('club')}</label><div id="qa_club"></div>
-    <label>${t('basicInfo')}</label><textarea id="qa_info" placeholder="ex: 14 buts en qualifs CAF U20 (non vérifié)"></textarea>
+    <label>${t('basicInfo')}</label><textarea id="qa_info" placeholder="ex: attaquante mobile, verticale, presse fort…"></textarea>
     <div class="actions"><button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="qa_ok">${t('save')}</button></div>`,
   el=>{
     let clubId=null;
@@ -473,6 +478,7 @@ async function viewPlayer(slug){
     agg[key]??={mt:0,min:0,g:0,a:0}; agg[key].mt++; agg[key].min+=n.minutes||0; agg[key].g+=n.goals||0; agg[key].a+=n.assists||0; }
   const club=p.club_id?CACHE.clubById[p.club_id]:null;
   const vids=notes.filter(n=>n.video_url);
+  const atts=(CACHE.attachments||[]).filter(a=>a.player_id===p.id).sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
   const F=k=>esc(p[k]||'');
   $('#app').innerHTML=`
    <div class="pagehead"><h1>${flag(p.country)} ${esc(p.name)}</h1>
@@ -511,15 +517,30 @@ async function viewPlayer(slug){
 
    <div class="panel"><h3>${t('obsLog')} (${notes.length})</h3>
      ${notes.length?notes.map(n=>`<div class="obs">
-        <div class="meta">${fmtDate(n.m.match_date)} · <a href="#/match/${n.m.slug}">${teamDisplay(n.m.home_team)} vs ${teamDisplay(n.m.away_team)}</a> · ${esc(n.scout)}</div>
-        <div>${esc(n.note||'')}</div>
+        <div class="meta" style="display:flex;align-items:center;gap:8px"><span>${fmtDate(n.m.match_date)} · <a href="#/match/${n.m.slug}">${teamDisplay(n.m.home_team)} vs ${teamDisplay(n.m.away_team)}</a> · ${esc(n.scout)}</span><span style="flex:1"></span>${state.unlocked?`<button class="btn small" data-en="${n.id}">✎</button><button class="btn small danger" data-dn="${n.id}">✕</button>`:''}</div>
+        ${noteBody(n)}
         ${(n.minutes||n.goals||n.assists)?`<div class="stats">${n.minutes||0}' · ⚽ ${n.goals||0} · 🅰 ${n.assists||0}</div>`:''}
         ${n.video_url?`<div><a href="${esc(n.video_url)}" target="_blank" rel="noopener">▶ video</a></div>`:''}
       </div>`).join(''):`<div class="empty"><b>${t('noObs')}</b></div>`}</div>
 
+   <div class="panel"><h3>${t('attachTitle')} (${atts.length})</h3>
+     ${atts.map(a=>`<div class="obs"><div class="meta" style="display:flex;align-items:center;gap:8px"><span>${fmtDate(a.created_at)} · ${esc(a.scout||'')}</span><span style="flex:1"></span>${state.unlocked?`<button class="btn small danger" data-da="${a.id}">✕</button>`:''}</div>
+       <a href="#" data-pdf="${a.id}">📄 ${esc(a.name)}</a></div>`).join('')||`<div class="empty">—</div>`}
+     ${state.unlocked?`<label class="btn small" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;cursor:pointer">＋ PDF<input type="file" id="pdfUp" accept="application/pdf" style="display:none"></label>`:''}</div>
+
    ${vids.length?`<div class="panel"><h3>${t('videos')}</h3>${vids.map(n=>`<div>▶ <a href="${esc(n.video_url)}" target="_blank" rel="noopener">${esc(n.video_url)}</a> <span class="mono" style="color:var(--muted);font-size:12px">${fmtDate(n.m.match_date)}</span></div>`).join('')}</div>`:''}`;
   $('#cpy').onclick=()=>{navigator.clipboard.writeText(location.href);toast(t('copied'));};
   $('#editBtn').onclick=()=>{ if(!requireUnlock())return; editPlayer(p); };
+  wireNoteButtons();
+  document.querySelectorAll('[data-pdf]').forEach(x=>x.onclick=e=>{e.preventDefault();const a=CACHE.attachments.find(z=>z.id===x.dataset.pdf);if(a)openDataUrl(a.data);});
+  document.querySelectorAll('[data-da]').forEach(b=>b.onclick=async()=>{if(!confirm(t('confirmDelete')))return;await dbDelete('attachments',b.dataset.da);route();});
+  const up=$('#pdfUp'); if(up) up.onchange=async ev=>{
+    const f=ev.target.files[0]; if(!f)return;
+    if(f.size>10*1024*1024){toast(t('fileTooBig'));return;}
+    const data=await readFileAsDataURL(f);
+    const r=await dbInsert('attachments',{player_id:p.id,name:f.name,data});
+    if(r)route();
+  };
 }
 
 function editPlayer(p){
@@ -536,7 +557,15 @@ function editPlayer(p){
     </div>
     <div class="row2">
       <div><label>${t('club')}</label><select id="e_club"><option value="">—</option>${[...CACHE.clubs].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}" ${p.club_id===c.id?'selected':''}>${flag(c.country)} ${esc(c.name)}</option>`).join('')}</select></div>
-      <div></div>
+      <div><label>&nbsp;</label><button type="button" class="btn small" id="e_nc">${t('newClub')}</button></div>
+    </div>
+    <div id="e_ncf" style="display:none;border:1px dashed var(--line);border-radius:10px;padding:10px;margin-top:6px">
+      <div class="row3">
+        <div><label>${t('name')} *</label><input id="nc_name"></div>
+        <div><label>${t('country')}</label><select id="nc_cc">${CAF.map(([cc])=>`<option value="${cc}">${flag(cc)} ${cName(cc)}</option>`).join('')}</select></div>
+        <div><label>${t('tier')}</label><input id="nc_tier" placeholder="1, 2, D1…"></div>
+      </div>
+      <button type="button" class="btn small primary" id="nc_ok" style="margin-top:8px">${t('save')}</button>
     </div>
     <div class="row2">
       <div><label>${t('birthDate')}</label><input id="e_dob" value="${p.birth_date?fmtDate(p.birth_date):''}"></div>
@@ -557,10 +586,21 @@ function editPlayer(p){
     <label>${t('opinions')}</label><textarea id="e_op">${F('opinions_projection')}</textarea>
     <label>${t('basicInfo')}</label><textarea id="e_info">${F('basic_info')}</textarea>
     <label>Photo URL</label><input id="e_ph" value="${F('photo_url')}">
+    <label style="margin-top:6px">${t('photoFile')}</label><input id="e_phf" type="file" accept="image/*">
     <div class="actions">
       <button class="btn danger" id="e_del">${t('delete')}</button><span style="flex:1"></span>
       <button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="e_ok">${t('save')}</button></div>`,
   el=>{
+    el.querySelector('#e_phf').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;el.querySelector('#e_ph').value=await resizePhoto(f);toast('✓ photo');};
+    el.querySelector('#e_nc').onclick=()=>{const d=el.querySelector('#e_ncf');d.style.display=d.style.display==='none'?'block':'none';};
+    el.querySelector('#nc_ok').onclick=async()=>{
+      const name=el.querySelector('#nc_name').value.trim(); if(!name)return;
+      const club=await dbInsert('clubs',{slug:uniqSlug(slugify(name),CACHE.clubs),name,country:el.querySelector('#nc_cc').value,tier:el.querySelector('#nc_tier').value.trim()||null});
+      if(!club)return;
+      CACHE.clubs.push(club);CACHE.clubById[club.id]=club;
+      const sel=el.querySelector('#e_club');const o=document.createElement('option');o.value=club.id;o.textContent=`${flag(club.country)} ${club.name}`;sel.appendChild(o);sel.value=club.id;
+      el.querySelector('#e_ncf').style.display='none';toast('✓');
+    };
     el.querySelector('#e_ok').onclick=async()=>{
       const patch={name:el.querySelector('#e_name').value.trim(),country:el.querySelector('#e_cc').value,
         position:el.querySelector('#e_pos').value.trim(),foot:el.querySelector('#e_foot').value,
@@ -687,7 +727,13 @@ async function viewMatchNew(){
         <div style="display:flex;justify-content:space-between;align-items:center">
           <b>${flag(p.country)} ${esc(p.name)}</b>
           <button class="btn small danger" data-del="${i}">✕</button></div>
-        <label>${t('note')}</label><textarea data-note="${i}">${esc(n.note)}</textarea>
+        <label>${t('generalNote')}</label><textarea data-note="${i}">${esc(n.note)}</textarea>
+        <div class="row2">
+          <div><label>${t('technique')}</label><textarea data-c4="${i}:note_technique">${esc(n.note_technique||'')}</textarea></div>
+          <div><label>${t('tactique')}</label><textarea data-c4="${i}:note_tactique">${esc(n.note_tactique||'')}</textarea></div>
+          <div><label>${t('mental')}</label><textarea data-c4="${i}:note_mental">${esc(n.note_mental||'')}</textarea></div>
+          <div><label>${t('athletique')}</label><textarea data-c4="${i}:note_athletique">${esc(n.note_athletique||'')}</textarea></div>
+        </div>
         <div class="row3">
           <div><label>${t('min')}</label><input type="number" data-min="${i}" value="${n.minutes??''}"></div>
           <div><label>${t('goals')}</label><input type="number" data-g="${i}" value="${n.goals??''}"></div>
@@ -698,6 +744,7 @@ async function viewMatchNew(){
     }).join('');
     list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{model.notes.splice(+b.dataset.del,1);drawNotes();});
     list.querySelectorAll('[data-note]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.note].note=x.value);
+    list.querySelectorAll('[data-c4]').forEach(x=>{const [i,k]=x.dataset.c4.split(':');x.oninput=()=>model.notes[+i][k]=x.value;});
     list.querySelectorAll('[data-min]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.min].minutes=+x.value||null);
     list.querySelectorAll('[data-g]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.g].goals=+x.value||null);
     list.querySelectorAll('[data-a]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.a].assists=+x.value||null);
@@ -708,8 +755,8 @@ async function viewMatchNew(){
       <div class="actions"><button class="btn" data-close>${t('cancel')}</button></div>`,
     el=>{ combo(el.querySelector('#pp'),{placeholder:t('typeToSearch'),
         items:()=>CACHE.players.map(p=>({label:p.name,id:p.id,html:`${flag(p.country)} ${esc(p.name)} <span style="color:var(--muted);font-size:11px">${esc(p.position||'')} ${p.birth_year||''}</span>`})),
-        onPick:it=>{model.notes.push({player_id:it.id,note:'',minutes:null,goals:null,assists:null,video_url:''});closeModal();drawNotes();},
-        allowCreate:name=>{closeModal();quickAddPlayer(p=>{model.notes.push({player_id:p.id,note:'',minutes:null,goals:null,assists:null,video_url:''});drawNotes();},name);}});
+        onPick:it=>{model.notes.push({player_id:it.id,note:'',note_technique:'',note_tactique:'',note_mental:'',note_athletique:'',minutes:null,goals:null,assists:null,video_url:''});closeModal();drawNotes();},
+        allowCreate:name=>{closeModal();quickAddPlayer(p=>{model.notes.push({player_id:p.id,note:'',note_technique:'',note_tactique:'',note_mental:'',note_athletique:'',minutes:null,goals:null,assists:null,video_url:''});drawNotes();},name);}});
       el.querySelector('#pp input').focus();
     });
   };
@@ -720,9 +767,42 @@ async function viewMatchNew(){
     const m=await dbInsert('match_reports',{slug:uniqSlug(slugBase,CACHE.matches),competition_id:model.competition_id,
       home_team:model.home,away_team:model.away,match_date:date,general_notes:$('#m_gen').value});
     if(!m)return;
-    for(const n of model.notes) await dbInsert('player_notes',{match_report_id:m.id,player_id:n.player_id,note:n.note,minutes:n.minutes,goals:n.goals,assists:n.assists,video_url:n.video_url});
+    for(const n of model.notes) await dbInsert('player_notes',{match_report_id:m.id,player_id:n.player_id,note:n.note,note_technique:n.note_technique||null,note_tactique:n.note_tactique||null,note_mental:n.note_mental||null,note_athletique:n.note_athletique||null,minutes:n.minutes,goals:n.goals,assists:n.assists,video_url:n.video_url});
     nav('#/match/'+m.slug);
   };
+}
+
+function editNoteModal(n){
+  const F=k=>esc(n[k]||'');
+  modal(`<h2>${t('editObs')}</h2>
+    <label>${t('generalNote')}</label><textarea id="en_note">${F('note')}</textarea>
+    <div class="row2">
+      <div><label>${t('technique')}</label><textarea id="en_t1">${F('note_technique')}</textarea></div>
+      <div><label>${t('tactique')}</label><textarea id="en_t2">${F('note_tactique')}</textarea></div>
+      <div><label>${t('mental')}</label><textarea id="en_t3">${F('note_mental')}</textarea></div>
+      <div><label>${t('athletique')}</label><textarea id="en_t4">${F('note_athletique')}</textarea></div>
+    </div>
+    <div class="row3">
+      <div><label>${t('min')}</label><input id="en_min" type="number" value="${n.minutes??''}"></div>
+      <div><label>${t('goals')}</label><input id="en_g" type="number" value="${n.goals??''}"></div>
+      <div><label>${t('assists')}</label><input id="en_a" type="number" value="${n.assists??''}"></div>
+    </div>
+    <label>${t('videoUrl')}</label><input id="en_v" value="${F('video_url')}">
+    <div class="actions"><button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="en_ok">${t('save')}</button></div>`,
+  el=>{
+    el.querySelector('#en_ok').onclick=async()=>{
+      const patch={note:el.querySelector('#en_note').value,
+        note_technique:el.querySelector('#en_t1').value||null,note_tactique:el.querySelector('#en_t2').value||null,
+        note_mental:el.querySelector('#en_t3').value||null,note_athletique:el.querySelector('#en_t4').value||null,
+        minutes:+el.querySelector('#en_min').value||null,goals:+el.querySelector('#en_g').value||null,
+        assists:+el.querySelector('#en_a').value||null,video_url:el.querySelector('#en_v').value.trim()};
+      const r=await dbUpdate('player_notes',n.id,patch); if(r!==null){Object.assign(n,patch);closeModal();route();}
+    };
+  });
+}
+function wireNoteButtons(){
+  document.querySelectorAll('[data-en]').forEach(b=>b.onclick=()=>{const n=CACHE.notes.find(x=>x.id===b.dataset.en);if(n)editNoteModal(n);});
+  document.querySelectorAll('[data-dn]').forEach(b=>b.onclick=async()=>{if(!confirm(t('confirmDelete')))return;await dbDelete('player_notes',b.dataset.dn);route();});
 }
 
 /* ================= VIEW: MATCH ================= */
@@ -743,11 +823,12 @@ async function viewMatch(slug){
    </div>${m.general_notes?`<p style="margin-top:10px">${esc(m.general_notes)}</p>`:''}</div>
    <div class="panel"><h3>${t('playersObserved')} (${notes.length})</h3>
     ${notes.map(n=>{const p=CACHE.playerById[n.player_id];return `<div class="obs">
-      <div class="meta"><a href="#/player/${p.slug}">${flag(p.country)} ${esc(p.name)}</a> · ${esc(n.scout)}</div>
-      <div>${esc(n.note||'')}</div>
+      <div class="meta" style="display:flex;align-items:center;gap:8px"><a href="#/player/${p?p.slug:''}">${p?flag(p.country):''} ${esc(p?p.name:'?')}</a> · ${esc(n.scout)}<span style="flex:1"></span>${state.unlocked?`<button class="btn small" data-en="${n.id}">✎</button><button class="btn small danger" data-dn="${n.id}">✕</button>`:''}</div>
+      ${noteBody(n)}
       ${(n.minutes||n.goals||n.assists)?`<div class="stats">${n.minutes||0}' · ⚽ ${n.goals||0} · 🅰 ${n.assists||0}</div>`:''}
       ${n.video_url?`<div><a href="${esc(n.video_url)}" target="_blank" rel="noopener">▶ video</a></div>`:''}
     </div>`;}).join('')||`<div class="empty">—</div>`}</div>`;
+  wireNoteButtons();
   $('#cpy').onclick=()=>{navigator.clipboard.writeText(location.href);toast(t('copied'));};
   const del=$('#delM'); if(del) del.onclick=async()=>{ if(!confirm(t('confirmDelete')))return; await dbDelete('match_reports',m.id); nav('#/matches'); };
 }
@@ -801,7 +882,7 @@ async function viewClub(slug){
   const key='club:'+c.id;
   const ms=CACHE.matches.filter(m=>m.home_team===key||m.away_team===key).sort((a,b)=>b.match_date.localeCompare(a.match_date));
   $('#app').innerHTML=`
-   <div class="pagehead"><h1>${flag(c.country)} ${esc(c.name)}</h1><span style="flex:1"></span><button class="btn small" id="cpy">${t('copyLink')}</button></div>
+   <div class="pagehead"><h1>${flag(c.country)} ${esc(c.name)}${c.tier?` <span class="mono" style="font-size:13px;color:var(--muted)">tier ${esc(c.tier)}</span>`:''}</h1><span style="flex:1"></span><button class="btn small" id="cpy">${t('copyLink')}</button></div>
    <div class="panel"><h3>${t('roster')} (${roster.length})</h3><div class="grid">
      ${roster.map(p=>`<a class="card" href="#/player/${p.slug}"><span class="flag">${flag(p.country)}</span>
        <span class="who"><span class="nm">${esc(p.name)}</span><span class="sub">${esc(p.position||'')} ${p.birth_year||''}</span></span></a>`).join('')||'—'}</div></div>
