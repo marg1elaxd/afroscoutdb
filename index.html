@@ -76,6 +76,7 @@ main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
 .evalblock p{white-space:pre-wrap;margin-bottom:8px}
 .evalblock h4{font-size:13px;color:var(--pink-soft);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em}
 /* obs log */
+.pre{white-space:pre-wrap}
 .obs{border-left:3px solid var(--pink-dim);padding:10px 12px;margin-bottom:10px;background:var(--panel2);border-radius:0 8px 8px 0}
 .obs .meta{font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px}
 .obs .stats{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--pink-soft)}
@@ -223,7 +224,7 @@ const readFileAsDataURL=f=>new Promise((res,rej)=>{const r=new FileReader();r.on
 async function resizePhoto(file,maxDim=400){const url=await readFileAsDataURL(file);return new Promise(res=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,maxDim/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*sc)||1;cv.height=Math.round(img.height*sc)||1;cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);res(cv.toDataURL('image/jpeg',0.8));};img.onerror=()=>res(url);img.src=url;});}
 function openDataUrl(d){try{const [meta,b64]=d.split(',');const mime=(meta.match(/data:([^;]+)/)||[])[1]||'application/pdf';const bin=atob(b64);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);window.open(URL.createObjectURL(new Blob([arr],{type:mime})),'_blank');}catch(e){window.open(d,'_blank');}}
 const CORNERS=[['note_technique','technique'],['note_tactique','tactique'],['note_mental','mental'],['note_athletique','athletique']];
-const noteBody=n=>{let h='';if(n.positions_played)h+=`<div class="mono" style="font-size:11.5px;color:var(--muted);margin-bottom:2px">${esc(n.positions_played)}</div>`;if(n.note)h+=`<div>${esc(n.note)}</div>`;h+=CORNERS.filter(([k])=>n[k]).map(([k,l])=>`<div style="margin-top:4px"><span class="mono" style="color:var(--pink);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">${t(l)}</span><br>${esc(n[k])}</div>`).join('');return h;};
+const noteBody=n=>{let h='';if(n.positions_played)h+=`<div class="mono" style="font-size:11.5px;color:var(--muted);margin-bottom:2px">${esc(n.positions_played)}</div>`;if(n.note)h+=`<div class="pre">${esc(n.note)}</div>`;h+=CORNERS.filter(([k])=>n[k]).map(([k,l])=>`<div class="pre" style="margin-top:4px"><span class="mono" style="color:var(--pink);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">${t(l)}</span><br>${esc(n[k])}</div>`).join('');return h;};
 const NAT_TEAMS = CAF.flatMap(([cc,en,fr])=>['','U20','U18','U17','U15'].map(l=>({cc,label:l,key:`${cc}${l?'-'+l:''}`})));
 const natTeamName = k => { const m=k.match(/^([A-Z]{2})(?:-(U\d+))?$/); if(!m) return k; return `${flag(m[1])} ${cName(m[1])}${m[2]?' '+m[2]:''}`; };
 const CONT_COMPS = ["WAFCON","WAFCON Qualifiers","WWC Qualifiers (CAF)","Olympic Qualifiers (CAF)","CAF Women's Champions League","CAF WCL Zonal Qualifiers","U20 WWC Qualifiers (CAF)","U17 WWC Qualifiers (CAF)","CECAFA Championship","CECAFA U20","CECAFA U17","COSAFA Championship","COSAFA U20","COSAFA U17","WAFU A Championship","WAFU B Championship","UNIFFAC Championship","African Games"];
@@ -515,7 +516,7 @@ async function viewPlayer(slug){
      <div><b>${t('nt')}</b><span>${F('nt_level')||'—'}</span></div>
      <div><b>${t('agent')}</b><span>${F('agent')||'—'}</span></div>
      <div><b>${t('links')}</b><span>${[p.soccerdonna_url?`<a href="${esc(p.soccerdonna_url)}" target="_blank" rel="noopener">Soccerdonna</a>`:'',p.social_url?`<a href="${esc(p.social_url)}" target="_blank" rel="noopener">Social</a>`:''].filter(Boolean).join(' · ')||'—'}</span></div>
-   </div>${p.basic_info?`<p style="margin-top:12px;color:var(--muted);font-size:13.5px">ℹ️ ${t('basicInfo')}: ${esc(p.basic_info)}</p>`:''}</div>
+   </div>${p.basic_info?`<p style="margin-top:12px;color:var(--muted);font-size:13.5px">ℹ️ ${t('basicInfo')}: <span class="pre">${esc(p.basic_info)}</span></p>`:''}</div>
 
    <div class="panel evalblock"><h3>${t('evaluation')}</h3>
     ${(p.rendement||p.opinions_projection||p.pf_technique)?`
@@ -524,12 +525,12 @@ async function viewPlayer(slug){
        <div><b>${t('potentiel')}</b><span class="mono">${p.potentiel??'—'} / 8</span></div>
        <div><b>${t('benchmark')}</b><span>${F('benchmark')||'—'}</span></div>
      </div><div class="hint">${t('ratingHint')}</div>
-     <h4>${t('strengths')} — ${t('technique')}</h4><p>${F('pf_technique')||'—'}</p>
-     <h4>${t('strengths')} — ${t('tactique')}</h4><p>${F('pf_tactique')||'—'}</p>
-     <h4>${t('strengths')} — ${t('mental')}</h4><p>${F('pf_mental')||'—'}</p>
-     <h4>${t('strengths')} — ${t('athletique')}</h4><p>${F('pf_athletique')||'—'}</p>
-     <h4>${t('axe')}</h4><p>${F('axe_amelioration')||'—'}</p>
-     <h4>${t('opinions')}</h4><p>${F('opinions_projection')||'—'}</p>
+     <h4>${t('strengths')} — ${t('technique')}</h4><p class="pre">${F('pf_technique')||'—'}</p>
+     <h4>${t('strengths')} — ${t('tactique')}</h4><p class="pre">${F('pf_tactique')||'—'}</p>
+     <h4>${t('strengths')} — ${t('mental')}</h4><p class="pre">${F('pf_mental')||'—'}</p>
+     <h4>${t('strengths')} — ${t('athletique')}</h4><p class="pre">${F('pf_athletique')||'—'}</p>
+     <h4>${t('axe')}</h4><p class="pre">${F('axe_amelioration')||'—'}</p>
+     <h4>${t('opinions')}</h4><p class="pre">${F('opinions_projection')||'—'}</p>
      <p style="color:var(--muted);font-size:12px" class="mono">${t('by')} ${esc(p.scout||'')}${p.updated_by?` · ${t('editedBy')} ${esc(p.updated_by)} ${fmtDate(p.updated_at)}`:''}</p>`
     :`<p style="color:var(--muted)">${t('noEval')}</p>`}</div>
 
@@ -877,7 +878,7 @@ async function viewMatch(slug){
      <div><b>${t('date')}</b><span class="mono">${fmtDate(m.match_date)}</span></div>
      <div><b>${t('comp')}</b><span>${comp?`<a href="#/competition/${comp.slug}">${esc(comp.name)}</a>`:t('scopeFriendly')}</span></div>
      <div><b>Scout</b><span>${esc(m.scout)}</span></div>
-   </div>${m.general_notes?`<p style="margin-top:10px">${esc(m.general_notes)}</p>`:''}${m.video_url?`<p style="margin-top:8px"><a href="${esc(m.video_url)}" target="_blank" rel="noopener">▶ ${t('videoUrl')}</a></p>`:''}</div>
+   </div>${m.general_notes?`<p class="pre" style="margin-top:10px">${esc(m.general_notes)}</p>`:''}${m.video_url?`<p style="margin-top:8px"><a href="${esc(m.video_url)}" target="_blank" rel="noopener">▶ ${t('videoUrl')}</a></p>`:''}</div>
    <div class="panel"><h3>${t('playersObserved')} (${notes.length})</h3>
     ${notes.map(n=>{const p=CACHE.playerById[n.player_id];return `<div class="obs">
       <div class="meta" style="display:flex;align-items:center;gap:8px"><a href="#/player/${p?p.slug:''}">${p?flag(p.country):''} ${esc(p?p.name:'?')}</a> · ${esc(n.scout)}<span style="flex:1"></span>${state.unlocked?`<button class="btn small" data-en="${n.id}">✎</button><button class="btn small danger" data-dn="${n.id}">✕</button>`:''}</div>
