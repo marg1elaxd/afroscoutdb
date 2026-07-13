@@ -128,7 +128,7 @@ td.num{font-family:'IBM Plex Mono',monospace}
 
 <script>
 /* ================= CONFIG ================= */
-const SUPABASE_URL  = 'https://nmyvtpcvwkdiorhaynom.supabase.co';        // e.g. https://xxxx.supabase.co
+const SUPABASE_URL  = 'https://nmyvtpcvwkdiorhaynom.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HQcYHKwWIORo_cikAwdMLg_biAVrW5U';
 const WRITE_PASSWORD = 'afroscout1';               // change before sharing
 const SCOUTS = ['Artem','Kingsley','Jason'];
@@ -152,7 +152,7 @@ const I18N = {
   unlock:'Déverrouiller',lock:'Verrouiller',whoAreYou:'Qui êtes-vous ?',password:'Mot de passe',wrongPw:'Mot de passe incorrect',
   matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Championnat domestique',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Amical / Autre',
   homeTeam:'Équipe A',awayTeam:'Équipe B',date:'Date',generalNotes:'Notes générales (contexte, terrain…)',
-  playersObserved:'Joueuses observées',addNote:'+ Ajouter une joueuse',note:'Observation',videoUrl:'Lien vidéo (match, highlights…)',
+  playersObserved:'Joueuses observées',addNote:'+ Ajouter une joueuse',note:'Observation',videoUrl:'Vidéo du match (URL)',highlights:'Highlights (URL)',
   quickAdd:'Nouvelle joueuse',dupWarn:'Profils similaires trouvés — est-ce la même joueuse ?',useExisting:'Utiliser',createAnyway:'Créer quand même',
   name:'Nom',country:'Pays',birthDate:'Date de naissance (jj/mm/aaaa)',birthYear:'Année de naissance',
   emptyPlayers:'Aucune joueuse pour ces filtres',emptyPlayersSub:'Ajoutez une joueuse ou changez les filtres.',
@@ -163,7 +163,7 @@ const I18N = {
   confirmDelete:'Supprimer définitivement ?',required:'Champ requis',saveFirst:'Choisissez la compétition et les équipes d\u2019abord',
   selectCompetition:'Choisir la compétition…',selectTeam:'Équipe…',selectPlayer:'Joueuse…',
   videos:'Vidéos',openMatch:'Voir le match',roster:'Effectif lié',matchHistory:'Matchs',
-  noEval:'Pas encore d\u2019évaluation — les notes de match s\u2019accumulent ici avant la synthèse.',generalNote:'Note générale',attachTitle:'Rapports PDF',tier:'Niveau (tier)',newClub:'+ Nouveau club',photoFile:'ou téléverser un fichier :',fileTooBig:'Fichier trop volumineux (max 10 Mo)',editObs:'Modifier l\u2019observation'},
+  noEval:'Pas encore d\u2019évaluation — les notes de match s\u2019accumulent ici avant la synthèse.',generalNote:'Note générale',attachTitle:'Rapports PDF',tier:'Niveau (tier)',newClub:'+ Nouveau club',photoFile:'ou téléverser un fichier :',fileTooBig:'Fichier trop volumineux (max 10 Mo)',editObs:'Modifier l\u2019observation',pos1:'Poste 1',pos2:'Poste 2',pos3:'Poste 3',posPlayed:'Poste(s) joué(s)',posRequired:'Poste requis pour chaque joueuse'},
  en:{players:'Players',matches:'Matches',competitions:'Competitions',clubs:'Clubs',
   search:'Search a player…',allCountries:'All countries',allPositions:'All positions',allScouts:'All scouts',allStatus:'All statuses',
   addPlayer:'+ Player',newMatch:'+ Match report',export:'Export CSV',
@@ -179,7 +179,7 @@ const I18N = {
   unlock:'Unlock',lock:'Lock',whoAreYou:'Who are you?',password:'Password',wrongPw:'Wrong password',
   matchReport:'Match report',scope:'Scope',scopeCountry:'Domestic league',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Friendly / Other',
   homeTeam:'Team A',awayTeam:'Team B',date:'Date',generalNotes:'General notes (context, pitch…)',
-  playersObserved:'Players observed',addNote:'+ Add player',note:'Observation',videoUrl:'Video link (match, highlights…)',
+  playersObserved:'Players observed',addNote:'+ Add player',note:'Observation',videoUrl:'Match video (URL)',highlights:'Highlights (URL)',
   quickAdd:'New player',dupWarn:'Similar profiles found — same player?',useExisting:'Use',createAnyway:'Create anyway',
   name:'Name',country:'Country',birthDate:'Birth date (dd/mm/yyyy)',birthYear:'Birth year',
   emptyPlayers:'No players match these filters',emptyPlayersSub:'Add a player or change the filters.',
@@ -190,7 +190,7 @@ const I18N = {
   confirmDelete:'Delete permanently?',required:'Required field',saveFirst:'Pick the competition and teams first',
   selectCompetition:'Pick competition…',selectTeam:'Team…',selectPlayer:'Player…',
   videos:'Videos',openMatch:'Open match',roster:'Linked squad',matchHistory:'Matches',
-  noEval:'No evaluation yet — match notes accumulate here before the synthesis.',generalNote:'General note',attachTitle:'PDF reports',tier:'Tier',newClub:'+ New club',photoFile:'or upload a file:',fileTooBig:'File too large (max 10 MB)',editObs:'Edit observation'}
+  noEval:'No evaluation yet — match notes accumulate here before the synthesis.',generalNote:'General note',attachTitle:'PDF reports',tier:'Tier',newClub:'+ New club',photoFile:'or upload a file:',fileTooBig:'File too large (max 10 MB)',editObs:'Edit observation',pos1:'Position 1',pos2:'Position 2',pos3:'Position 3',posPlayed:'Position(s) played',posRequired:'Position required for every player'}
 };
 let LANG = localStorage.getItem('afs_lang') || 'fr';
 const t = k => { const o=I18N[LANG]; return k.split('.').reduce((a,b)=>a&&a[b],o) ?? k; };
@@ -223,7 +223,7 @@ const readFileAsDataURL=f=>new Promise((res,rej)=>{const r=new FileReader();r.on
 async function resizePhoto(file,maxDim=400){const url=await readFileAsDataURL(file);return new Promise(res=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,maxDim/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*sc)||1;cv.height=Math.round(img.height*sc)||1;cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);res(cv.toDataURL('image/jpeg',0.8));};img.onerror=()=>res(url);img.src=url;});}
 function openDataUrl(d){try{const [meta,b64]=d.split(',');const mime=(meta.match(/data:([^;]+)/)||[])[1]||'application/pdf';const bin=atob(b64);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);window.open(URL.createObjectURL(new Blob([arr],{type:mime})),'_blank');}catch(e){window.open(d,'_blank');}}
 const CORNERS=[['note_technique','technique'],['note_tactique','tactique'],['note_mental','mental'],['note_athletique','athletique']];
-const noteBody=n=>{let h='';if(n.note)h+=`<div>${esc(n.note)}</div>`;h+=CORNERS.filter(([k])=>n[k]).map(([k,l])=>`<div style="margin-top:4px"><span class="mono" style="color:var(--pink);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">${t(l)}</span><br>${esc(n[k])}</div>`).join('');return h;};
+const noteBody=n=>{let h='';if(n.positions_played)h+=`<div class="mono" style="font-size:11.5px;color:var(--muted);margin-bottom:2px">${esc(n.positions_played)}</div>`;if(n.note)h+=`<div>${esc(n.note)}</div>`;h+=CORNERS.filter(([k])=>n[k]).map(([k,l])=>`<div style="margin-top:4px"><span class="mono" style="color:var(--pink);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">${t(l)}</span><br>${esc(n[k])}</div>`).join('');return h;};
 const NAT_TEAMS = CAF.flatMap(([cc,en,fr])=>['','U20','U18','U17','U15'].map(l=>({cc,label:l,key:`${cc}${l?'-'+l:''}`})));
 const natTeamName = k => { const m=k.match(/^([A-Z]{2})(?:-(U\d+))?$/); if(!m) return k; return `${flag(m[1])} ${cName(m[1])}${m[2]?' '+m[2]:''}`; };
 const CONT_COMPS = ["WAFCON","WAFCON Qualifiers","WWC Qualifiers (CAF)","Olympic Qualifiers (CAF)","CAF Women's Champions League","CAF WCL Zonal Qualifiers","U20 WWC Qualifiers (CAF)","U17 WWC Qualifiers (CAF)","CECAFA Championship","CECAFA U20","CECAFA U17","COSAFA Championship","COSAFA U20","COSAFA U17","WAFU A Championship","WAFU B Championship","UNIFFAC Championship","African Games"];
@@ -410,7 +410,7 @@ async function viewPlayers(){
   $('#ft').onchange=e=>{f.status=e.target.value;draw();};
   $('#addP').onclick=()=>{ if(!requireUnlock())return; quickAddPlayer(p=>nav('#/player/'+p.slug)); };
   $('#expBtn').onclick=()=>{
-    const cols=['name','country','birth_date','position','foot','height','nt_level','status','rendement','potentiel','scout'];
+    const cols=['name','country','birth_date','position','position2','position3','foot','height','nt_level','status','rendement','potentiel','scout'];
     const csv=[cols.join(',')].concat(CACHE.players.map(p=>cols.map(c=>`"${String(p[c]??'').replace(/"/g,'""')}"`).join(','))).join('\n');
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='afroscout_players.csv'; a.click();
   };
@@ -423,7 +423,11 @@ function quickAddPlayer(done,prefillName){
     <div id="dup"></div>
     <div class="row2">
       <div><label>${t('country')} *</label><select id="qa_cc">${CAF.map(([cc])=>`<option value="${cc}">${flag(cc)} ${cName(cc)}</option>`).join('')}</select></div>
-      <div><label>${t('position')}</label><input id="qa_pos" placeholder="CB, ST, CM…"></div>
+      <div><label>${t('pos1')}</label><input id="qa_pos" placeholder="CB"></div>
+    </div>
+    <div class="row2">
+      <div><label>${t('pos2')}</label><input id="qa_pos2"></div>
+      <div><label>${t('pos3')}</label><input id="qa_pos3"></div>
     </div>
     <div class="row2">
       <div><label>${t('birthDate')}</label><input id="qa_dob" placeholder="jj/mm/aaaa"></div>
@@ -456,7 +460,7 @@ function quickAddPlayer(done,prefillName){
       const dob=parseDDMM(el.querySelector('#qa_dob').value);
       const by=+el.querySelector('#qa_by').value || (dob?+dob.slice(0,4):null);
       const p=await dbInsert('players',{slug:uniqSlug(slugify(name)+(by?'-'+by:''),CACHE.players),name,country:cc,
-        birth_date:dob,birth_year:by,position:el.querySelector('#qa_pos').value.trim(),club_id:clubId,
+        birth_date:dob,birth_year:by,position:el.querySelector('#qa_pos').value.trim(),position2:el.querySelector('#qa_pos2').value.trim()||null,position3:el.querySelector('#qa_pos3').value.trim()||null,club_id:clubId,
         basic_info:el.querySelector('#qa_info').value.trim(),status:'watchlist'});
       if(p){CACHE.players.push(p);CACHE.playerById[p.id]=p;closeModal();done(p);}
     };
@@ -489,7 +493,7 @@ async function viewPlayer(slug){
      <button class="btn small primary" id="editBtn">${t('edit')}</button></div>
    <div class="panel"><div class="kv">
      <div><b>${t('born')}</b><span class="mono">${p.birth_date?fmtDate(p.birth_date):(p.birth_year||'—')}</span></div>
-     <div><b>${t('position')}</b><span>${F('position')}${p.position2?' / '+esc(p.position2):''}</span></div>
+     <div><b>${t('position')}</b><span>${F('position')}${p.position2?' / '+esc(p.position2):''}${p.position3?' / '+esc(p.position3):''}</span></div>
      <div><b>${t('foot')}</b><span>${esc(tFoot(p.foot))||'—'}</span></div>
      <div><b>${t('height')}</b><span class="mono">${p.height?p.height+' cm':'—'}</span></div>
      <div><b>${t('club')}</b><span>${club?`<a href="#/club/${club.slug}">${esc(club.name)}</a>`:'—'}</span></div>
@@ -551,7 +555,11 @@ function editPlayer(p){
       <div><label>${t('country')}</label><select id="e_cc">${CAF.map(([cc])=>`<option value="${cc}" ${p.country===cc?'selected':''}>${flag(cc)} ${cName(cc)}</option>`).join('')}</select></div>
     </div>
     <div class="row3">
-      <div><label>${t('position')}</label><input id="e_pos" value="${F('position')}"></div>
+      <div><label>${t('pos1')}</label><input id="e_pos" value="${F('position')}" placeholder="CB"></div>
+      <div><label>${t('pos2')}</label><input id="e_pos2" value="${F('position2')}" placeholder="RB"></div>
+      <div><label>${t('pos3')}</label><input id="e_pos3" value="${F('position3')}"></div>
+    </div>
+    <div class="row2">
       <div><label>${t('foot')}</label><select id="e_foot">${['','Right','Left','Both'].map(v=>`<option value="${v}" ${(p.foot===v||(v==='Right'&&p.foot==='Droit')||(v==='Left'&&p.foot==='Gauche'))?'selected':''}>${v?tFoot(v):'—'}</option>`).join('')}</select></div>
       <div><label>${t('height')} (cm)</label><input id="e_h" type="number" value="${p.height||''}"></div>
     </div>
@@ -603,7 +611,7 @@ function editPlayer(p){
     };
     el.querySelector('#e_ok').onclick=async()=>{
       const patch={name:el.querySelector('#e_name').value.trim(),country:el.querySelector('#e_cc').value,
-        position:el.querySelector('#e_pos').value.trim(),foot:el.querySelector('#e_foot').value,
+        position:el.querySelector('#e_pos').value.trim(),position2:el.querySelector('#e_pos2').value.trim()||null,position3:el.querySelector('#e_pos3').value.trim()||null,foot:el.querySelector('#e_foot').value,
         club_id:el.querySelector('#e_club').value||null,
         height:+el.querySelector('#e_h').value||null,birth_date:parseDDMM(el.querySelector('#e_dob').value),
         nt_level:el.querySelector('#e_nt').value.trim(),status:el.querySelector('#e_st').value,
@@ -660,6 +668,7 @@ async function viewMatchNew(){
        <div><label>${t('awayTeam')} *</label><div id="m_away"></div></div>
      </div>
      <label>${t('date')} *</label><input id="m_date" placeholder="jj/mm/aaaa" class="mono" style="max-width:180px">
+     <label>${t('videoUrl')}</label><input id="m_video" placeholder="https://…">
      <label>${t('generalNotes')}</label><textarea id="m_gen"></textarea>
    </div>
    <div class="panel"><h3>${t('playersObserved')}</h3>
@@ -727,6 +736,11 @@ async function viewMatchNew(){
         <div style="display:flex;justify-content:space-between;align-items:center">
           <b>${flag(p.country)} ${esc(p.name)}</b>
           <button class="btn small danger" data-del="${i}">✕</button></div>
+        <div class="row3">
+          <div><label>${t('pos1')} *</label><input data-p1="${i}" value="${esc(n.p1||'')}" placeholder="CB"></div>
+          <div><label>${t('pos2')}</label><input data-p2="${i}" value="${esc(n.p2||'')}"></div>
+          <div><label>${t('pos3')}</label><input data-p3="${i}" value="${esc(n.p3||'')}"></div>
+        </div>
         <label>${t('generalNote')}</label><textarea data-note="${i}">${esc(n.note)}</textarea>
         <div class="row2">
           <div><label>${t('technique')}</label><textarea data-c4="${i}:note_technique">${esc(n.note_technique||'')}</textarea></div>
@@ -739,12 +753,15 @@ async function viewMatchNew(){
           <div><label>${t('goals')}</label><input type="number" data-g="${i}" value="${n.goals??''}"></div>
           <div><label>${t('assists')}</label><input type="number" data-a="${i}" value="${n.assists??''}"></div>
         </div>
-        <label>${t('videoUrl')}</label><input data-v="${i}" value="${esc(n.video_url||'')}">
+        <label>${t('highlights')}</label><input data-v="${i}" value="${esc(n.video_url||'')}">
       </div>`;
     }).join('');
     list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{model.notes.splice(+b.dataset.del,1);drawNotes();});
     list.querySelectorAll('[data-note]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.note].note=x.value);
     list.querySelectorAll('[data-c4]').forEach(x=>{const [i,k]=x.dataset.c4.split(':');x.oninput=()=>model.notes[+i][k]=x.value;});
+    list.querySelectorAll('[data-p1]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.p1].p1=x.value);
+    list.querySelectorAll('[data-p2]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.p2].p2=x.value);
+    list.querySelectorAll('[data-p3]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.p3].p3=x.value);
     list.querySelectorAll('[data-min]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.min].minutes=+x.value||null);
     list.querySelectorAll('[data-g]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.g].goals=+x.value||null);
     list.querySelectorAll('[data-a]').forEach(x=>x.oninput=()=>model.notes[+x.dataset.a].assists=+x.value||null);
@@ -755,26 +772,33 @@ async function viewMatchNew(){
       <div class="actions"><button class="btn" data-close>${t('cancel')}</button></div>`,
     el=>{ combo(el.querySelector('#pp'),{placeholder:t('typeToSearch'),
         items:()=>CACHE.players.map(p=>({label:p.name,id:p.id,html:`${flag(p.country)} ${esc(p.name)} <span style="color:var(--muted);font-size:11px">${esc(p.position||'')} ${p.birth_year||''}</span>`})),
-        onPick:it=>{model.notes.push({player_id:it.id,note:'',note_technique:'',note_tactique:'',note_mental:'',note_athletique:'',minutes:null,goals:null,assists:null,video_url:''});closeModal();drawNotes();},
-        allowCreate:name=>{closeModal();quickAddPlayer(p=>{model.notes.push({player_id:p.id,note:'',note_technique:'',note_tactique:'',note_mental:'',note_athletique:'',minutes:null,goals:null,assists:null,video_url:''});drawNotes();},name);}});
+        onPick:it=>{const pl=CACHE.playerById[it.id];model.notes.push({player_id:it.id,p1:(pl&&pl.position)||'',p2:'',p3:'',note:'',note_technique:'',note_tactique:'',note_mental:'',note_athletique:'',minutes:null,goals:null,assists:null,video_url:''});closeModal();drawNotes();},
+        allowCreate:name=>{closeModal();quickAddPlayer(p=>{model.notes.push({player_id:p.id,p1:p.position||'',p2:'',p3:'',note:'',note_technique:'',note_tactique:'',note_mental:'',note_athletique:'',minutes:null,goals:null,assists:null,video_url:''});drawNotes();},name);}});
       el.querySelector('#pp input').focus();
     });
   };
   $('#m_save').onclick=async()=>{
     const date=parseDDMM($('#m_date').value);
     if(!model.home||!model.away||!date){toast(t('saveFirst'));return;}
+    if(model.notes.some(n=>!(n.p1||'').trim())){toast(t('posRequired'));return;}
     const slugBase=`${date}-${slugify(teamDisplay(model.home))}-vs-${slugify(teamDisplay(model.away))}`;
     const m=await dbInsert('match_reports',{slug:uniqSlug(slugBase,CACHE.matches),competition_id:model.competition_id,
-      home_team:model.home,away_team:model.away,match_date:date,general_notes:$('#m_gen').value});
+      home_team:model.home,away_team:model.away,match_date:date,general_notes:$('#m_gen').value,video_url:$('#m_video').value.trim()||null});
     if(!m)return;
-    for(const n of model.notes) await dbInsert('player_notes',{match_report_id:m.id,player_id:n.player_id,note:n.note,note_technique:n.note_technique||null,note_tactique:n.note_tactique||null,note_mental:n.note_mental||null,note_athletique:n.note_athletique||null,minutes:n.minutes,goals:n.goals,assists:n.assists,video_url:n.video_url});
+    for(const n of model.notes) await dbInsert('player_notes',{match_report_id:m.id,player_id:n.player_id,positions_played:[n.p1,n.p2,n.p3].map(x=>(x||'').trim()).filter(Boolean).join(', '),note:n.note,note_technique:n.note_technique||null,note_tactique:n.note_tactique||null,note_mental:n.note_mental||null,note_athletique:n.note_athletique||null,minutes:n.minutes,goals:n.goals,assists:n.assists,video_url:n.video_url});
     nav('#/match/'+m.slug);
   };
 }
 
 function editNoteModal(n){
   const F=k=>esc(n[k]||'');
+  const pp=(n.positions_played||'').split(',').map(x=>x.trim()).filter(Boolean);
   modal(`<h2>${t('editObs')}</h2>
+    <div class="row3">
+      <div><label>${t('pos1')} *</label><input id="en_p1" value="${esc(pp[0]||'')}"></div>
+      <div><label>${t('pos2')}</label><input id="en_p2" value="${esc(pp[1]||'')}"></div>
+      <div><label>${t('pos3')}</label><input id="en_p3" value="${esc(pp[2]||'')}"></div>
+    </div>
     <label>${t('generalNote')}</label><textarea id="en_note">${F('note')}</textarea>
     <div class="row2">
       <div><label>${t('technique')}</label><textarea id="en_t1">${F('note_technique')}</textarea></div>
@@ -787,11 +811,11 @@ function editNoteModal(n){
       <div><label>${t('goals')}</label><input id="en_g" type="number" value="${n.goals??''}"></div>
       <div><label>${t('assists')}</label><input id="en_a" type="number" value="${n.assists??''}"></div>
     </div>
-    <label>${t('videoUrl')}</label><input id="en_v" value="${F('video_url')}">
+    <label>${t('highlights')}</label><input id="en_v" value="${F('video_url')}">
     <div class="actions"><button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="en_ok">${t('save')}</button></div>`,
   el=>{
     el.querySelector('#en_ok').onclick=async()=>{
-      const patch={note:el.querySelector('#en_note').value,
+      const patch={positions_played:[el.querySelector('#en_p1').value,el.querySelector('#en_p2').value,el.querySelector('#en_p3').value].map(x=>x.trim()).filter(Boolean).join(', '),note:el.querySelector('#en_note').value,
         note_technique:el.querySelector('#en_t1').value||null,note_tactique:el.querySelector('#en_t2').value||null,
         note_mental:el.querySelector('#en_t3').value||null,note_athletique:el.querySelector('#en_t4').value||null,
         minutes:+el.querySelector('#en_min').value||null,goals:+el.querySelector('#en_g').value||null,
@@ -820,7 +844,7 @@ async function viewMatch(slug){
      <div><b>${t('date')}</b><span class="mono">${fmtDate(m.match_date)}</span></div>
      <div><b>${t('comp')}</b><span>${comp?`<a href="#/competition/${comp.slug}">${esc(comp.name)}</a>`:t('scopeFriendly')}</span></div>
      <div><b>Scout</b><span>${esc(m.scout)}</span></div>
-   </div>${m.general_notes?`<p style="margin-top:10px">${esc(m.general_notes)}</p>`:''}</div>
+   </div>${m.general_notes?`<p style="margin-top:10px">${esc(m.general_notes)}</p>`:''}${m.video_url?`<p style="margin-top:8px"><a href="${esc(m.video_url)}" target="_blank" rel="noopener">▶ ${t('videoUrl')}</a></p>`:''}</div>
    <div class="panel"><h3>${t('playersObserved')} (${notes.length})</h3>
     ${notes.map(n=>{const p=CACHE.playerById[n.player_id];return `<div class="obs">
       <div class="meta" style="display:flex;align-items:center;gap:8px"><a href="#/player/${p?p.slug:''}">${p?flag(p.country):''} ${esc(p?p.name:'?')}</a> · ${esc(n.scout)}<span style="flex:1"></span>${state.unlocked?`<button class="btn small" data-en="${n.id}">✎</button><button class="btn small danger" data-dn="${n.id}">✕</button>`:''}</div>
