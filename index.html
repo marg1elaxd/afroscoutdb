@@ -151,7 +151,7 @@ const I18N = {
   comp:'Compétition',min:'Min',goals:'Buts',assists:'Passes déc.',matchesN:'Matchs',
   edit:'Modifier',save:'Enregistrer',cancel:'Annuler',delete:'Supprimer',copyLink:'Copier le lien',copied:'Lien copié',
   unlock:'Déverrouiller',lock:'Verrouiller',whoAreYou:'Qui êtes-vous ?',password:'Mot de passe',wrongPw:'Mot de passe incorrect',
-  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Championnat domestique',scopeCont:'Continental (CAF)',scopeIntl:'International (FIFA)',scopeFriendly:'Amical / Autre',hintCountry:'Championnat & coupe nationale d\u2019un pays',hintCont:'CAF : sélections A et jeunes, CAF WCL & qualifications, tournois régionaux (WAFU, CECAFA, COSAFA…)',hintIntl:'FIFA : Coupes du monde (toutes catégories), Jeux Olympiques, amicaux internationaux',lineups:'Compositions (max 4 images)',maxImgs:'Maximum 4 images',
+  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Championnat domestique',scopeCont:'Continental (CAF)',scopeIntl:'International (FIFA)',scopeFriendly:'Amical / Autre',hintCountry:'Championnat & coupe nationale d\u2019un pays',hintCont:'CAF : sélections A et jeunes, CAF WCL & qualifications, tournois régionaux (WAFU, CECAFA, COSAFA…)',hintIntl:'FIFA : Coupes du monde (toutes catégories), Jeux Olympiques, amicaux internationaux',lineups:'Compositions (max 4 images)',maxImgs:'Maximum 4 images',editMatch:'Modifier le match',editComp:'Modifier la compétition',compInfo:'Infos (liens, couverture, notes…)',
   homeTeam:'Équipe A',awayTeam:'Équipe B',date:'Date',generalNotes:'Notes générales (contexte, terrain…)',
   playersObserved:'Joueuses observées',addNote:'+ Ajouter une joueuse',note:'Observation',videoUrl:'Vidéo du match (URL)',highlights:'Highlights (URL)',
   quickAdd:'Nouvelle joueuse',dupWarn:'Profils similaires trouvés — est-ce la même joueuse ?',useExisting:'Utiliser',createAnyway:'Créer quand même',
@@ -178,7 +178,7 @@ const I18N = {
   comp:'Competition',min:'Min',goals:'Goals',assists:'Assists',matchesN:'Matches',
   edit:'Edit',save:'Save',cancel:'Cancel',delete:'Delete',copyLink:'Copy link',copied:'Link copied',
   unlock:'Unlock',lock:'Lock',whoAreYou:'Who are you?',password:'Password',wrongPw:'Wrong password',
-  matchReport:'Match report',scope:'Scope',scopeCountry:'Domestic league',scopeCont:'Continental (CAF)',scopeIntl:'International (FIFA)',scopeFriendly:'Friendly / Other',hintCountry:'One country\u2019s league & domestic cup',hintCont:'CAF: senior & youth NTs, CAF WCL & qualifiers, regional tournaments (WAFU, CECAFA, COSAFA…)',hintIntl:'FIFA: World Cups (all levels), Olympics, international friendlies',lineups:'Line-ups (max 4 images)',maxImgs:'Maximum 4 images',
+  matchReport:'Match report',scope:'Scope',scopeCountry:'Domestic league',scopeCont:'Continental (CAF)',scopeIntl:'International (FIFA)',scopeFriendly:'Friendly / Other',hintCountry:'One country\u2019s league & domestic cup',hintCont:'CAF: senior & youth NTs, CAF WCL & qualifiers, regional tournaments (WAFU, CECAFA, COSAFA…)',hintIntl:'FIFA: World Cups (all levels), Olympics, international friendlies',lineups:'Line-ups (max 4 images)',maxImgs:'Maximum 4 images',editMatch:'Edit match',editComp:'Edit competition',compInfo:'Info (links, coverage, notes…)',
   homeTeam:'Team A',awayTeam:'Team B',date:'Date',generalNotes:'General notes (context, pitch…)',
   playersObserved:'Players observed',addNote:'+ Add player',note:'Observation',videoUrl:'Match video (URL)',highlights:'Highlights (URL)',
   quickAdd:'New player',dupWarn:'Similar profiles found — same player?',useExisting:'Use',createAnyway:'Create anyway',
@@ -224,6 +224,7 @@ const readFileAsDataURL=f=>new Promise((res,rej)=>{const r=new FileReader();r.on
 async function resizePhoto(file,maxDim=400){const url=await readFileAsDataURL(file);return new Promise(res=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,maxDim/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*sc)||1;cv.height=Math.round(img.height*sc)||1;cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);res(cv.toDataURL('image/jpeg',0.8));};img.onerror=()=>res(url);img.src=url;});}
 function openDataUrl(d){try{const [meta,b64]=d.split(',');const mime=(meta.match(/data:([^;]+)/)||[])[1]||'application/pdf';const bin=atob(b64);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);window.open(URL.createObjectURL(new Blob([arr],{type:mime})),'_blank');}catch(e){window.open(d,'_blank');}}
 const CORNERS=[['note_technique','technique'],['note_tactique','tactique'],['note_mental','mental'],['note_athletique','athletique']];
+const linkify=escaped=>escaped.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
 const noteBody=n=>{let h='';if(n.positions_played)h+=`<div class="mono" style="font-size:11.5px;color:var(--muted);margin-bottom:2px">${esc(n.positions_played)}</div>`;if(n.note)h+=`<div class="pre">${esc(n.note)}</div>`;h+=CORNERS.filter(([k])=>n[k]).map(([k,l])=>`<div class="pre" style="margin-top:4px"><span class="mono" style="color:var(--pink);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">${t(l)}</span><br>${esc(n[k])}</div>`).join('');return h;};
 const NAT_TEAMS = CAF.flatMap(([cc,en,fr])=>['','U20','U18','U17','U15'].map(l=>({cc,label:l,key:`${cc}${l?'-'+l:''}`})));
 const natTeamName = k => { const m=k.match(/^([A-Z]{2})(?:-(U\d+))?$/); if(!m) return k; return `${flag(m[1])} ${cName(m[1])}${m[2]?' '+m[2]:''}`; };
@@ -877,6 +878,41 @@ function editNoteModal(n){
     };
   });
 }
+function editMatchModal(m){
+  modal(`<h2>${t('editMatch')}</h2>
+    <div class="row2">
+      <div><label>${t('homeTeam')}</label><div id="em_home"></div></div>
+      <div><label>${t('awayTeam')}</label><div id="em_away"></div></div>
+    </div>
+    <label>${t('comp')}</label><div id="em_comp"></div>
+    <label>${t('date')} *</label><input id="em_date" class="mono" value="${m.match_date?fmtDate(m.match_date):''}" placeholder="jj/mm/aaaa" style="max-width:180px">
+    <label>${t('videoUrl')}</label><input id="em_video" value="${esc(m.video_url||'')}">
+    <label>${t('generalNotes')}</label><textarea id="em_gen">${esc(m.general_notes||'')}</textarea>
+    <div class="actions"><button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="em_ok">${t('save')}</button></div>`,
+  el=>{
+    let home=m.home_team, away=m.away_team, compId=m.competition_id;
+    const teamItems=()=>{
+      const nats=NAT_TEAMS.map(nt=>{ const mm=nt.key.match(/^([A-Z]{2})(?:-(U\d+))?$/); const cc=mm?mm[1]:'', age=mm&&mm[2]?mm[2]:'';
+        return {label:natTeamName(nt.key).replace(/^\S+\s/,''),value:nt.key,search:`${cSearch(cc)} ${age.toLowerCase()}`,html:natTeamName(nt.key)}; });
+      const clubs=CACHE.clubs.map(c=>({label:c.name,value:'club:'+c.id,search:`${norm(c.name)} ${cSearch(c.country||'')}`,html:`${flag(c.country)} ${esc(c.name)} <span style="color:var(--muted);font-size:11px">club</span>`}));
+      return [...nats,...clubs];
+    };
+    combo(el.querySelector('#em_home'),{placeholder:t('typeToSearch'),items:teamItems,onPick:it=>home=it.value,value:teamDisplay(m.home_team)});
+    combo(el.querySelector('#em_away'),{placeholder:t('typeToSearch'),items:teamItems,onPick:it=>away=it.value,value:teamDisplay(m.away_team)});
+    combo(el.querySelector('#em_comp'),{placeholder:t('typeToSearch'),
+      items:()=>CACHE.comps.map(c=>({label:c.name,id:c.id,search:`${norm(c.name)} ${c.country?cSearch(c.country):''}`,html:esc(c.name)})),
+      onPick:it=>compId=it.id,
+      value:m.competition_id&&CACHE.compById[m.competition_id]?CACHE.compById[m.competition_id].name:''});
+    el.querySelector('#em_ok').onclick=async()=>{
+      const date=parseDDMM(el.querySelector('#em_date').value);
+      if(!date){toast(t('saveFirst'));return;}
+      const patch={home_team:home,away_team:away,competition_id:compId,match_date:date,
+        video_url:el.querySelector('#em_video').value.trim()||null,general_notes:el.querySelector('#em_gen').value};
+      const r=await dbUpdate('match_reports',m.id,patch);
+      if(r!==null){Object.assign(m,patch);closeModal();route();}
+    };
+  });
+}
 function wireNoteButtons(){
   document.querySelectorAll('[data-en]').forEach(b=>b.onclick=()=>{const n=CACHE.notes.find(x=>x.id===b.dataset.en);if(n)editNoteModal(n);});
   document.querySelectorAll('[data-dn]').forEach(b=>b.onclick=async()=>{if(!confirm(t('confirmDelete')))return;await dbDelete('player_notes',b.dataset.dn);route();});
@@ -892,12 +928,12 @@ async function viewMatch(slug){
   $('#app').innerHTML=`
    <div class="pagehead"><h1>${teamLink(m.home_team)} <span style="color:var(--muted)">vs</span> ${teamLink(m.away_team)}</h1>
      <span style="flex:1"></span><button class="btn small" id="cpy">${t('copyLink')}</button>
-     ${state.unlocked?`<button class="btn small danger" id="delM">${t('delete')}</button>`:''}</div>
+     ${state.unlocked?`<button class="btn small" id="editM">✎ ${t('editMatch')}</button><button class="btn small danger" id="delM">${t('delete')}</button>`:''}</div>
    <div class="panel"><div class="kv">
      <div><b>${t('date')}</b><span class="mono">${fmtDate(m.match_date)}</span></div>
      <div><b>${t('comp')}</b><span>${comp?`<a href="#/competition/${comp.slug}">${esc(comp.name)}</a>`:t('scopeFriendly')}</span></div>
      <div><b>Scout</b><span>${esc(m.scout)}</span></div>
-   </div>${m.general_notes?`<p class="pre" style="margin-top:10px">${esc(m.general_notes)}</p>`:''}${m.video_url?`<p style="margin-top:8px"><a href="${esc(m.video_url)}" target="_blank" rel="noopener">▶ ${t('videoUrl')}</a></p>`:''}
+   </div>${m.general_notes?`<p class="pre" style="margin-top:10px">${linkify(esc(m.general_notes))}</p>`:''}${m.video_url?`<p style="margin-top:8px"><a href="${esc(m.video_url)}" target="_blank" rel="noopener">▶ ${t('videoUrl')}</a></p>`:''}
    ${(()=>{const imgs=(CACHE.matchImages||[]).filter(x=>x.match_report_id===m.id);
      if(!imgs.length&&!state.unlocked)return '';
      return `<div style="margin-top:10px"><div class="mono" style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${t('lineups')}</div>
@@ -913,6 +949,7 @@ async function viewMatch(slug){
       ${n.video_url?`<div><a href="${esc(n.video_url)}" target="_blank" rel="noopener">▶ video</a></div>`:''}
     </div>`;}).join('')||`<div class="empty">—</div>`}</div>`;
   wireNoteButtons();
+  const eM=$('#editM'); if(eM) eM.onclick=()=>editMatchModal(m);
   document.querySelectorAll('[data-mimg]').forEach(im=>im.onclick=()=>{const x=CACHE.matchImages.find(z=>z.id===im.dataset.mimg);if(x)openDataUrl(x.data);});
   document.querySelectorAll('[data-dmimg]').forEach(b=>b.onclick=async()=>{if(!confirm(t('confirmDelete')))return;await dbDelete('match_images',b.dataset.dmimg);route();});
   const miu=$('#mImgUp'); if(miu) miu.onchange=async ev=>{
@@ -950,7 +987,8 @@ async function viewCompetition(slug){
   const players=[...new Set(ns.map(n=>n.player_id))].map(id=>CACHE.playerById[id]).filter(Boolean);
   const teams=[...new Set(ms.flatMap(m=>[m.home_team,m.away_team]))];
   $('#app').innerHTML=`
-   <div class="pagehead"><h1>${esc(c.name)}</h1><span style="flex:1"></span><button class="btn small" id="cpy">${t('copyLink')}</button></div>
+   <div class="pagehead"><h1>${esc(c.name)}</h1><span style="flex:1"></span><button class="btn small" id="cpy">${t('copyLink')}</button>${state.unlocked?`<button class="btn small" id="editC">✎ ${t('editComp')}</button>`:''}</div>
+   ${c.info?`<div class="panel"><p class="pre" style="margin:0">${linkify(esc(c.info))}</p></div>`:''}
    <div class="panel"><h3>${t('coverage')}</h3><div class="kv">
      <div><b>${t('matchesN')}</b><span class="mono">${ms.length}</span></div>
      <div><b>${t('teamsSeen')}</b><span class="mono">${teams.length}</span></div>
@@ -963,6 +1001,19 @@ async function viewCompetition(slug){
      ${players.map(p=>`<a class="card" href="#/player/${p.slug}"><span class="flag">${flag(p.country)}</span>
        <span class="who"><span class="nm">${esc(p.name)}</span><span class="sub">${esc(p.position||'')} ${p.birth_year||''}</span></span></a>`).join('')}</div></div>`;
   $('#cpy').onclick=()=>{navigator.clipboard.writeText(location.href);toast(t('copied'));};
+  const eC=$('#editC'); if(eC) eC.onclick=()=>{
+    modal(`<h2>${t('editComp')}</h2>
+      <label>${t('name')}</label><input id="ec_name" value="${esc(c.name)}">
+      <label>${t('compInfo')}</label><textarea id="ec_info" rows="6" placeholder="https://…\nDomi couvre le sud, Salah le nord…">${esc(c.info||'')}</textarea>
+      <div class="actions"><button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="ec_ok">${t('save')}</button></div>`,
+    el=>{
+      el.querySelector('#ec_ok').onclick=async()=>{
+        const patch={name:el.querySelector('#ec_name').value.trim()||c.name,info:el.querySelector('#ec_info').value.trim()||null};
+        const r=await dbUpdate('competitions',c.id,patch);
+        if(r!==null){Object.assign(c,patch);closeModal();route();}
+      };
+    });
+  };
 }
 
 /* ================= VIEW: CLUB ================= */
