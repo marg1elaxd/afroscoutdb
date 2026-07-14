@@ -151,7 +151,7 @@ const I18N = {
   comp:'Compétition',min:'Min',goals:'Buts',assists:'Passes déc.',matchesN:'Matchs',
   edit:'Modifier',save:'Enregistrer',cancel:'Annuler',delete:'Supprimer',copyLink:'Copier le lien',copied:'Lien copié',
   unlock:'Déverrouiller',lock:'Verrouiller',whoAreYou:'Qui êtes-vous ?',password:'Mot de passe',wrongPw:'Mot de passe incorrect',
-  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Championnat domestique',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Amical / Autre',
+  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Championnat domestique',scopeCont:'Continental (CAF)',scopeIntl:'International (FIFA)',scopeFriendly:'Amical / Autre',hintCountry:'Championnat & coupe nationale d\u2019un pays',hintCont:'CAF : sélections A et jeunes, CAF WCL & qualifications, tournois régionaux (WAFU, CECAFA, COSAFA…)',hintIntl:'FIFA : Coupes du monde (toutes catégories), Jeux Olympiques, amicaux internationaux',lineups:'Compositions (max 4 images)',maxImgs:'Maximum 4 images',
   homeTeam:'Équipe A',awayTeam:'Équipe B',date:'Date',generalNotes:'Notes générales (contexte, terrain…)',
   playersObserved:'Joueuses observées',addNote:'+ Ajouter une joueuse',note:'Observation',videoUrl:'Vidéo du match (URL)',highlights:'Highlights (URL)',
   quickAdd:'Nouvelle joueuse',dupWarn:'Profils similaires trouvés — est-ce la même joueuse ?',useExisting:'Utiliser',createAnyway:'Créer quand même',
@@ -178,7 +178,7 @@ const I18N = {
   comp:'Competition',min:'Min',goals:'Goals',assists:'Assists',matchesN:'Matches',
   edit:'Edit',save:'Save',cancel:'Cancel',delete:'Delete',copyLink:'Copy link',copied:'Link copied',
   unlock:'Unlock',lock:'Lock',whoAreYou:'Who are you?',password:'Password',wrongPw:'Wrong password',
-  matchReport:'Match report',scope:'Scope',scopeCountry:'Domestic league',scopeCont:'Continental',scopeIntl:'International',scopeFriendly:'Friendly / Other',
+  matchReport:'Match report',scope:'Scope',scopeCountry:'Domestic league',scopeCont:'Continental (CAF)',scopeIntl:'International (FIFA)',scopeFriendly:'Friendly / Other',hintCountry:'One country\u2019s league & domestic cup',hintCont:'CAF: senior & youth NTs, CAF WCL & qualifiers, regional tournaments (WAFU, CECAFA, COSAFA…)',hintIntl:'FIFA: World Cups (all levels), Olympics, international friendlies',lineups:'Line-ups (max 4 images)',maxImgs:'Maximum 4 images',
   homeTeam:'Team A',awayTeam:'Team B',date:'Date',generalNotes:'General notes (context, pitch…)',
   playersObserved:'Players observed',addNote:'+ Add player',note:'Observation',videoUrl:'Match video (URL)',highlights:'Highlights (URL)',
   quickAdd:'New player',dupWarn:'Similar profiles found — same player?',useExisting:'Use',createAnyway:'Create anyway',
@@ -240,7 +240,7 @@ const toast = msg => { const el=document.createElement('div'); el.className='toa
 const normName = s => slugify(s).split('-').sort().join(' ');
 
 /* ================= DATA LAYER (supabase or demo) ================= */
-const demoDB = { players:[],clubs:[],competitions:[],match_reports:[],player_notes:[],attachments:[] };
+const demoDB = { players:[],clubs:[],competitions:[],match_reports:[],player_notes:[],attachments:[],match_images:[] };
 function seedDemo(){
   const c2={id:'c2',slug:'ghana-1',name:'Ghana-1',scope:'country',country:'GH',scout:'Artem'};
   demoDB.competitions.push(c2);
@@ -361,8 +361,8 @@ async function route(){
 /* ================= CACHED LOOKUPS ================= */
 let CACHE={};
 async function loadAll(){
-  const [players,clubs,comps,matches,notes,attachments]=await Promise.all([dbList('players'),dbList('clubs'),dbList('competitions'),dbList('match_reports'),dbList('player_notes'),dbList('attachments')]);
-  CACHE={players,clubs,comps,matches,notes,attachments,
+  const [players,clubs,comps,matches,notes,attachments,matchImages]=await Promise.all([dbList('players'),dbList('clubs'),dbList('competitions'),dbList('match_reports'),dbList('player_notes'),dbList('attachments'),dbList('match_images')]);
+  CACHE={players,clubs,comps,matches,notes,attachments,matchImages,
     clubById:Object.fromEntries(clubs.map(c=>[c.id,c])),
     compById:Object.fromEntries(comps.map(c=>[c.id,c])),
     playerById:Object.fromEntries(players.map(p=>[p.id,p])),
@@ -686,7 +686,7 @@ async function viewMatchNew(){
   if(!state.unlocked){ openUnlock(); nav('#/matches'); return; }
   await loadAll();
   const app=$('#app');
-  const model={scope:'country',country:'',competition_id:null,home:'',away:'',date:'',general:'',notes:[]};
+  const model={scope:'country',country:'',competition_id:null,home:'',away:'',date:'',general:'',notes:[],images:[]};
   app.innerHTML=`
    <div class="pagehead"><h1>${t('matchReport')}</h1></div>
    <div class="panel">
@@ -694,6 +694,7 @@ async function viewMatchNew(){
      <select id="m_scope">
        <option value="country">${t('scopeCountry')}</option><option value="continental">${t('scopeCont')}</option>
        <option value="international">${t('scopeIntl')}</option><option value="friendly">${t('scopeFriendly')}</option></select>
+     <div id="scopeHint" class="mono" style="font-size:11.5px;color:var(--muted);margin:4px 0 2px"></div>
      <div id="ccWrap" style="display:block"><label>${t('country')}</label>
        <div id="m_cc" style="max-width:280px"></div></div>
      <div id="compWrap"><label>${t('comp')}</label><div id="m_comp"></div></div>
@@ -703,6 +704,9 @@ async function viewMatchNew(){
      </div>
      <label>${t('date')} *</label><input id="m_date" placeholder="jj/mm/aaaa" class="mono" style="max-width:180px">
      <label>${t('videoUrl')}</label><input id="m_video" placeholder="https://…">
+     <label>${t('lineups')}</label>
+     <input id="m_imgs" type="file" accept="image/*" multiple>
+     <div id="imgPrev" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"></div>
      <label>${t('generalNotes')}</label><textarea id="m_gen"></textarea>
    </div>
    <div class="panel"><h3>${t('playersObserved')}</h3>
@@ -756,10 +760,24 @@ async function viewMatchNew(){
         if(club){CACHE.clubs.push(club);CACHE.clubById[club.id]=club;model[key]='club:'+club.id;$(sel+' input').value=name;}
       }});
   }
-  mountComp(); mountTeam('#m_home','home'); mountTeam('#m_away','away');
+  const scopeHint=()=>{$('#scopeHint').textContent={country:t('hintCountry'),continental:t('hintCont'),international:t('hintIntl'),friendly:''}[model.scope]||'';};
+  mountComp(); mountTeam('#m_home','home'); mountTeam('#m_away','away'); scopeHint();
   $('#m_scope').onchange=e=>{model.scope=e.target.value;model.competition_id=null;
-    $('#ccWrap').style.display=model.scope==='country'?'block':'none'; mountComp();};
+    $('#ccWrap').style.display=model.scope==='country'?'block':'none'; mountComp(); scopeHint();};
   countryCombo($('#m_cc'),{value:model.country,onPick:v=>{model.country=v;model.competition_id=null;mountComp();}});
+
+  /* line-up images (max 4, held until save) */
+  function drawImgs(){
+    $('#imgPrev').innerHTML=model.images.map((d,i)=>`<div style="position:relative"><img src="${d}" style="width:86px;height:86px;object-fit:cover;border-radius:8px;border:1px solid var(--line)"><button class="btn small danger" data-rmimg="${i}" style="position:absolute;top:-6px;right:-6px">✕</button></div>`).join('');
+    $('#imgPrev').querySelectorAll('[data-rmimg]').forEach(b=>b.onclick=()=>{model.images.splice(+b.dataset.rmimg,1);drawImgs();});
+  }
+  $('#m_imgs').onchange=async ev=>{
+    for(const f of [...ev.target.files]){
+      if(model.images.length>=4){toast(t('maxImgs'));break;}
+      model.images.push(await resizePhoto(f,1200));
+    }
+    ev.target.value=''; drawImgs();
+  };
 
   /* player notes */
   function drawNotes(){
@@ -819,6 +837,7 @@ async function viewMatchNew(){
     const m=await dbInsert('match_reports',{slug:uniqSlug(slugBase,CACHE.matches),competition_id:model.competition_id,
       home_team:model.home,away_team:model.away,match_date:date,general_notes:$('#m_gen').value,video_url:$('#m_video').value.trim()||null});
     if(!m)return;
+    for(const d of model.images) await dbInsert('match_images',{match_report_id:m.id,data:d});
     for(const n of model.notes) await dbInsert('player_notes',{match_report_id:m.id,player_id:n.player_id,positions_played:[n.p1,n.p2,n.p3].map(x=>(x||'').trim()).filter(Boolean).join(', '),note:n.note,note_technique:n.note_technique||null,note_tactique:n.note_tactique||null,note_mental:n.note_mental||null,note_athletique:n.note_athletique||null,minutes:n.minutes,goals:n.goals,assists:n.assists,video_url:n.video_url});
     nav('#/match/'+m.slug);
   };
@@ -878,7 +897,14 @@ async function viewMatch(slug){
      <div><b>${t('date')}</b><span class="mono">${fmtDate(m.match_date)}</span></div>
      <div><b>${t('comp')}</b><span>${comp?`<a href="#/competition/${comp.slug}">${esc(comp.name)}</a>`:t('scopeFriendly')}</span></div>
      <div><b>Scout</b><span>${esc(m.scout)}</span></div>
-   </div>${m.general_notes?`<p class="pre" style="margin-top:10px">${esc(m.general_notes)}</p>`:''}${m.video_url?`<p style="margin-top:8px"><a href="${esc(m.video_url)}" target="_blank" rel="noopener">▶ ${t('videoUrl')}</a></p>`:''}</div>
+   </div>${m.general_notes?`<p class="pre" style="margin-top:10px">${esc(m.general_notes)}</p>`:''}${m.video_url?`<p style="margin-top:8px"><a href="${esc(m.video_url)}" target="_blank" rel="noopener">▶ ${t('videoUrl')}</a></p>`:''}
+   ${(()=>{const imgs=(CACHE.matchImages||[]).filter(x=>x.match_report_id===m.id);
+     if(!imgs.length&&!state.unlocked)return '';
+     return `<div style="margin-top:10px"><div class="mono" style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${t('lineups')}</div>
+       <div style="display:flex;gap:8px;flex-wrap:wrap">
+       ${imgs.map(x=>`<div style="position:relative"><img src="${x.data}" data-mimg="${x.id}" style="width:110px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer">${state.unlocked?`<button class="btn small danger" data-dmimg="${x.id}" style="position:absolute;top:-6px;right:-6px">✕</button>`:''}</div>`).join('')}
+       ${state.unlocked&&imgs.length<4?`<label class="btn small" style="align-self:center;cursor:pointer">＋<input type="file" id="mImgUp" accept="image/*" multiple style="display:none"></label>`:''}
+       </div></div>`;})()}</div>
    <div class="panel"><h3>${t('playersObserved')} (${notes.length})</h3>
     ${notes.map(n=>{const p=CACHE.playerById[n.player_id];return `<div class="obs">
       <div class="meta" style="display:flex;align-items:center;gap:8px"><a href="#/player/${p?p.slug:''}">${p?flag(p.country):''} ${esc(p?p.name:'?')}</a> · ${esc(n.scout)}<span style="flex:1"></span>${state.unlocked?`<button class="btn small" data-en="${n.id}">✎</button><button class="btn small danger" data-dn="${n.id}">✕</button>`:''}</div>
@@ -887,6 +913,14 @@ async function viewMatch(slug){
       ${n.video_url?`<div><a href="${esc(n.video_url)}" target="_blank" rel="noopener">▶ video</a></div>`:''}
     </div>`;}).join('')||`<div class="empty">—</div>`}</div>`;
   wireNoteButtons();
+  document.querySelectorAll('[data-mimg]').forEach(im=>im.onclick=()=>{const x=CACHE.matchImages.find(z=>z.id===im.dataset.mimg);if(x)openDataUrl(x.data);});
+  document.querySelectorAll('[data-dmimg]').forEach(b=>b.onclick=async()=>{if(!confirm(t('confirmDelete')))return;await dbDelete('match_images',b.dataset.dmimg);route();});
+  const miu=$('#mImgUp'); if(miu) miu.onchange=async ev=>{
+    const cur=(CACHE.matchImages||[]).filter(x=>x.match_report_id===m.id).length;
+    let room=4-cur;
+    for(const f of [...ev.target.files]){ if(room<=0){toast(t('maxImgs'));break;} await dbInsert('match_images',{match_report_id:m.id,data:await resizePhoto(f,1200)}); room--; }
+    route();
+  };
   $('#cpy').onclick=()=>{navigator.clipboard.writeText(location.href);toast(t('copied'));};
   const del=$('#delM'); if(del) del.onclick=async()=>{ if(!confirm(t('confirmDelete')))return; await dbDelete('match_reports',m.id); nav('#/matches'); };
 }
