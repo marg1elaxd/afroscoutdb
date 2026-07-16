@@ -171,7 +171,7 @@ const I18N = {
   addPlayer:'+ Player',newMatch:'+ Match report',export:'Export CSV',
   status:{watchlist:'Watchlist',follow:'Follow',recommend:'Recommend',pass:'Pass'},
   lastObs:'Last obs.',noObs:'Never observed',born:'Born',height:'Height',foot:'Foot',club:'Club',nt:'Nat. team',position:'Position',
-  evaluation:'Evaluation',rendement:'Current level',potentiel:'Potential',rpBadge:'R / P',benchmark:'Rated against',
+  evaluation:'Evaluation',rendement:'Current level',potentiel:'Potential',rpBadge:'C / P',benchmark:'Rated against',
   ratingHint:'1 = best · 8 = weakest',
   strengths:'Strengths',technique:'Technical',tactique:'Tactical',mental:'Mental',athletique:'Athletic',
   axe:'Area for improvement',opinions:'Opinions & projection',
@@ -501,7 +501,7 @@ async function viewPlayer(slug){
     .sort((a,b)=>b.m.match_date.localeCompare(a.m.match_date));
   // computed stats per competition
   const agg={};
-  for(const n of notes){ const comp=n.m.competition_id?CACHE.compById[n.m.competition_id]:null; const key=comp?comp.name:t('scopeFriendly');
+  for(const n of notes){ const comp=n.m.competition_id?CACHE.compById[n.m.competition_id]:null; const key=comp?compLabel(comp):t('scopeFriendly');
     agg[key]??={mt:0,min:0,g:0,a:0}; agg[key].mt++; agg[key].min+=n.minutes||0; agg[key].g+=n.goals||0; agg[key].a+=n.assists||0; }
   const club=p.club_id?CACHE.clubById[p.club_id]:null;
   const vids=notes.filter(n=>n.video_url);
