@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AFROSCOUT WOMEN'S — Scouting Platform</title>
+<title>THE SIGHTINGS FILES — Scouting Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -118,7 +118,7 @@ td.num{font-family:'IBM Plex Mono',monospace}
 <div id="demoBanner" class="demo-banner" style="display:none"></div>
 <header>
   <div class="hwrap">
-    <span class="wordmark">🔭 AFROSCOUT <b>WOMEN'S</b></span>
+    <span class="wordmark">🔭 THE SIGHTINGS <b>FILES</b></span>
     <nav id="nav"></nav>
     <div class="hbtns">
       <button class="btn small" id="langBtn"></button>
@@ -144,15 +144,15 @@ const I18N = {
   addPlayer:'+ Joueuse',newMatch:'+ Rapport de match',export:'Export CSV',
   status:{watchlist:'À observer',follow:'À suivre',recommend:'Recommandée',pass:'Écartée'},
   lastObs:'Dernière obs.',noObs:'Jamais observée',born:'Née',height:'Taille',foot:'Pied',club:'Club',nt:'Sélection',position:'Poste',
-  evaluation:'Évaluation',rendement:'Niveau',potentiel:'Potentiel',rpBadge:'N / P',benchmark:'Évaluée par rapport à',
-  ratingHint:'1 = meilleur niveau · 8 = plus faible',
+  evaluation:'Évaluation',rendement:'CA (niveau actuel)',potentiel:'PA (potentiel)',rpBadge:'CA / PA',benchmark:'Évaluée par rapport à',
+  ratingHint:'Plus haut = meilleur · demi-points OK · référence : niveaux de clubs seniors',
   strengths:'Points forts',technique:'Technique',tactique:'Tactique',mental:'Mental',athletique:'Athlétique',
   axe:'Axe d\u2019amélioration',opinions:'Opinions & projection',
   obsLog:'Journal d\u2019observations',statsBlock:'Stats (matchs observés)',basicInfo:'Style',
   comp:'Compétition',min:'Min',goals:'Buts',assists:'Passes déc.',matchesN:'Matchs',
   edit:'Modifier',save:'Enregistrer',cancel:'Annuler',delete:'Supprimer',copyLink:'Copier le lien',copied:'Lien copié',
   unlock:'Déverrouiller',lock:'Verrouiller',whoAreYou:'Qui êtes-vous ?',password:'Mot de passe',wrongPw:'Mot de passe incorrect',
-  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Championnat domestique',scopeCont:'Continental (CAF)',scopeIntl:'International (FIFA)',scopeFriendly:'Amical / Autre',hintCountry:'Championnat & coupe nationale d\u2019un pays',hintCont:'CAF : sélections A et jeunes, CAF WCL & qualifications, tournois régionaux (WAFU, CECAFA, COSAFA…)',hintIntl:'FIFA : Coupes du monde (toutes catégories), Jeux Olympiques, amicaux internationaux',lineups:'Compositions (max 4 images)',maxImgs:'Maximum 4 images',editMatch:'Modifier le match',editComp:'Modifier la compétition',compInfo:'Infos (liens, couverture, notes…)',season:'Saison',newComp:'+ Nouvelle compétition',clubs:'Clubs',city:'Ville',clubLevel:'Niveau du club',badge:'Écusson',clubInfo:'Infos (style de jeu, joueuses clés…)',formerClubs:'Anciens clubs',formerPlayers:'Anciennes joueuses',addFormer:'+ Ancien club',period:'Période (ex: 2023–24)',cantDeleteClub:'Impossible : des joueuses (actuelles ou anciennes) sont liées à ce club. Réassignez-les d\u2019abord.',sortNivBest:'Niveau : meilleures d\u2019abord',sortNivWorst:'Niveau : faibles d\u2019abord',sortPotBest:'Potentiel : meilleures d\u2019abord',sortPotWorst:'Potentiel : faibles d\u2019abord',planned:'planifiée',cantDeleteComp:'Impossible : des matchs sont liés à cette compétition. Supprimez ou réassignez-les d\u2019abord.',
+  matchReport:'Rapport de match',scope:'Périmètre',scopeCountry:'Championnat domestique',scopeCont:'Continental (confédérations)',scopeIntl:'International (FIFA)',scopeFriendly:'Amical / Autre',hintCountry:'Championnat & coupe nationale d\u2019un pays',hintCont:'Confédérations : CAF WCL, UEFA WCL, Copa Libertadores F, qualifications, tournois régionaux (WAFU, CECAFA…)',hintIntl:'FIFA : Coupes du monde (toutes catégories), Jeux Olympiques, amicaux internationaux',lineups:'Compositions (max 4 images)',maxImgs:'Maximum 4 images',editMatch:'Modifier le match',editComp:'Modifier la compétition',compInfo:'Infos (liens, couverture, notes…)',season:'Saison',newComp:'+ Nouvelle compétition',clubs:'Clubs',city:'Ville',clubLevel:'Niveau du club',badge:'Écusson',clubInfo:'Infos (style de jeu, joueuses clés…)',formerClubs:'Anciens clubs',formerPlayers:'Anciennes joueuses',addFormer:'+ Ancien club',period:'Période (ex: 2023–24)',cantDeleteClub:'Impossible : des joueuses (actuelles ou anciennes) sont liées à ce club. Réassignez-les d\u2019abord.',sortNivBest:'Niveau : meilleures d\u2019abord',sortNivWorst:'Niveau : faibles d\u2019abord',sortPotBest:'Potentiel : meilleures d\u2019abord',sortPotWorst:'Potentiel : faibles d\u2019abord',planned:'planifiée',cantDeleteComp:'Impossible : des matchs sont liés à cette compétition. Supprimez ou réassignez-les d\u2019abord.',superpowers:'Superpowers',blindspots:'Blind spots',risk:'Risques / réserves',weakFoot:'Pied faible',weight:'Poids',dateScouted:'Scoutée le',nat2:'2e nationalité',maxSp:'5 superpowers max',spHint:'séparés par des virgules · 5 max',
   homeTeam:'Équipe A',awayTeam:'Équipe B',date:'Date',generalNotes:'Notes générales (contexte, terrain…)',
   playersObserved:'Joueuses observées',addNote:'+ Ajouter une joueuse',note:'Observation',videoUrl:'Vidéo du match (URL)',highlights:'Highlights (URL)',
   quickAdd:'Nouvelle joueuse',dupWarn:'Profils similaires trouvés — est-ce la même joueuse ?',useExisting:'Utiliser',createAnyway:'Créer quand même',
@@ -171,15 +171,15 @@ const I18N = {
   addPlayer:'+ Player',newMatch:'+ Match report',export:'Export CSV',
   status:{watchlist:'Watchlist',follow:'Follow',recommend:'Recommend',pass:'Pass'},
   lastObs:'Last obs.',noObs:'Never observed',born:'Born',height:'Height',foot:'Foot',club:'Club',nt:'Nat. team',position:'Position',
-  evaluation:'Evaluation',rendement:'Current level',potentiel:'Potential',rpBadge:'C / P',benchmark:'Rated against',
-  ratingHint:'1 = best · 8 = weakest',
+  evaluation:'Evaluation',rendement:'CA (current ability)',potentiel:'PA (potential)',rpBadge:'CA / PA',benchmark:'Rated against',
+  ratingHint:'Higher = better · half-points OK · benchmark: senior club levels',
   strengths:'Strengths',technique:'Technical',tactique:'Tactical',mental:'Mental',athletique:'Athletic',
   axe:'Area for improvement',opinions:'Opinions & projection',
   obsLog:'Observation log',statsBlock:'Stats (observed matches)',basicInfo:'Style',
   comp:'Competition',min:'Min',goals:'Goals',assists:'Assists',matchesN:'Matches',
   edit:'Edit',save:'Save',cancel:'Cancel',delete:'Delete',copyLink:'Copy link',copied:'Link copied',
   unlock:'Unlock',lock:'Lock',whoAreYou:'Who are you?',password:'Password',wrongPw:'Wrong password',
-  matchReport:'Match report',scope:'Scope',scopeCountry:'Domestic league',scopeCont:'Continental (CAF)',scopeIntl:'International (FIFA)',scopeFriendly:'Friendly / Other',hintCountry:'One country\u2019s league & domestic cup',hintCont:'CAF: senior & youth NTs, CAF WCL & qualifiers, regional tournaments (WAFU, CECAFA, COSAFA…)',hintIntl:'FIFA: World Cups (all levels), Olympics, international friendlies',lineups:'Line-ups (max 4 images)',maxImgs:'Maximum 4 images',editMatch:'Edit match',editComp:'Edit competition',compInfo:'Info (links, coverage, notes…)',season:'Season',newComp:'+ New competition',clubs:'Clubs',city:'City',clubLevel:'Club level',badge:'Badge',clubInfo:'Info (playing style, key players…)',formerClubs:'Former clubs',formerPlayers:'Former players',addFormer:'+ Former club',period:'Period (e.g. 2023–24)',cantDeleteClub:'Cannot delete: players (current or former) are linked to this club. Reassign them first.',sortNivBest:'Level: best first',sortNivWorst:'Level: weakest first',sortPotBest:'Potential: best first',sortPotWorst:'Potential: weakest first',planned:'planned',cantDeleteComp:'Cannot delete: matches are linked to this competition. Delete or reassign them first.',
+  matchReport:'Match report',scope:'Scope',scopeCountry:'Domestic league',scopeCont:'Continental (confederations)',scopeIntl:'International (FIFA)',scopeFriendly:'Friendly / Other',hintCountry:'One country\u2019s league & domestic cup',hintCont:'Confederations: CAF WCL, UEFA WCL, Copa Libertadores Fem, qualifiers, regional tournaments (WAFU, CECAFA…)',hintIntl:'FIFA: World Cups (all levels), Olympics, international friendlies',lineups:'Line-ups (max 4 images)',maxImgs:'Maximum 4 images',editMatch:'Edit match',editComp:'Edit competition',compInfo:'Info (links, coverage, notes…)',season:'Season',newComp:'+ New competition',clubs:'Clubs',city:'City',clubLevel:'Club level',badge:'Badge',clubInfo:'Info (playing style, key players…)',formerClubs:'Former clubs',formerPlayers:'Former players',addFormer:'+ Former club',period:'Period (e.g. 2023–24)',cantDeleteClub:'Cannot delete: players (current or former) are linked to this club. Reassign them first.',sortNivBest:'Level: best first',sortNivWorst:'Level: weakest first',sortPotBest:'Potential: best first',sortPotWorst:'Potential: weakest first',planned:'planned',cantDeleteComp:'Cannot delete: matches are linked to this competition. Delete or reassign them first.',superpowers:'Superpowers',blindspots:'Blind spots',risk:'Risk / caveats',weakFoot:'Weak foot',weight:'Weight',dateScouted:'First scouted',nat2:'2nd nationality',maxSp:'5 superpowers max',spHint:'comma-separated · 5 max',
   homeTeam:'Team A',awayTeam:'Team B',date:'Date',generalNotes:'General notes (context, pitch…)',
   playersObserved:'Players observed',addNote:'+ Add player',note:'Observation',videoUrl:'Match video (URL)',highlights:'Highlights (URL)',
   quickAdd:'New player',dupWarn:'Similar profiles found — same player?',useExisting:'Use',createAnyway:'Create anyway',
@@ -212,23 +212,70 @@ const CAF = [
 ["ST","São Tomé & Príncipe","Sao Tomé-et-Principe"],["SN","Senegal","Sénégal"],["SC","Seychelles","Seychelles"],["SL","Sierra Leone","Sierra Leone"],
 ["SO","Somalia","Somalie"],["ZA","South Africa","Afrique du Sud"],["SS","South Sudan","Soudan du Sud"],["SD","Sudan","Soudan"],
 ["TZ","Tanzania","Tanzanie"],["TG","Togo","Togo"],["TN","Tunisia","Tunisie"],["UG","Uganda","Ouganda"],
-["ZM","Zambia","Zambie"],["ZW","Zimbabwe","Zimbabwe"]];
+["ZM","Zambia","Zambie"],["ZW","Zimbabwe","Zimbabwe"],
+/* ---- UEFA ---- */
+["AL","Albania","Albanie"],["AD","Andorra","Andorre"],["AM","Armenia","Arménie"],["AT","Austria","Autriche"],
+["AZ","Azerbaijan","Azerbaïdjan"],["BY","Belarus","Biélorussie"],["BE","Belgium","Belgique"],["BA","Bosnia & Herzegovina","Bosnie-Herzégovine"],
+["BG","Bulgaria","Bulgarie"],["HR","Croatia","Croatie"],["CY","Cyprus","Chypre"],["CZ","Czechia","Tchéquie"],
+["DK","Denmark","Danemark"],["EE","Estonia","Estonie"],["FO","Faroe Islands","Îles Féroé"],["FI","Finland","Finlande"],
+["FR","France","France"],["GE","Georgia","Géorgie"],["DE","Germany","Allemagne"],["GI","Gibraltar","Gibraltar"],
+["GR","Greece","Grèce"],["HU","Hungary","Hongrie"],["IS","Iceland","Islande"],["IE","Ireland","Irlande"],
+["IL","Israel","Israël"],["IT","Italy","Italie"],["KZ","Kazakhstan","Kazakhstan"],["XK","Kosovo","Kosovo"],
+["LV","Latvia","Lettonie"],["LI","Liechtenstein","Liechtenstein"],["LT","Lithuania","Lituanie"],["LU","Luxembourg","Luxembourg"],
+["MT","Malta","Malte"],["MD","Moldova","Moldavie"],["MC","Monaco","Monaco"],["ME","Montenegro","Monténégro"],
+["NL","Netherlands","Pays-Bas"],["MK","North Macedonia","Macédoine du Nord"],["NO","Norway","Norvège"],["PL","Poland","Pologne"],
+["PT","Portugal","Portugal"],["RO","Romania","Roumanie"],["RU","Russia","Russie"],["SM","San Marino","Saint-Marin"],
+["RS","Serbia","Serbie"],["SK","Slovakia","Slovaquie"],["SI","Slovenia","Slovénie"],["ES","Spain","Espagne"],
+["SE","Sweden","Suède"],["CH","Switzerland","Suisse"],["TR","Türkiye","Turquie"],["UA","Ukraine","Ukraine"],
+["GB","United Kingdom","Royaume-Uni"],
+/* ---- CONMEBOL ---- */
+["AR","Argentina","Argentine"],["BO","Bolivia","Bolivie"],["BR","Brazil","Brésil"],["CL","Chile","Chili"],
+["CO","Colombia","Colombie"],["EC","Ecuador","Équateur"],["PY","Paraguay","Paraguay"],["PE","Peru","Pérou"],
+["UY","Uruguay","Uruguay"],["VE","Venezuela","Venezuela"],
+/* ---- CONCACAF ---- */
+["AG","Antigua & Barbuda","Antigua-et-Barbuda"],["BS","Bahamas","Bahamas"],["BB","Barbados","Barbade"],["BZ","Belize","Belize"],
+["BM","Bermuda","Bermudes"],["CA","Canada","Canada"],["KY","Cayman Islands","Îles Caïmans"],["CR","Costa Rica","Costa Rica"],
+["CU","Cuba","Cuba"],["CW","Curaçao","Curaçao"],["DM","Dominica","Dominique"],["DO","Dominican Rep.","Rép. dominicaine"],
+["SV","El Salvador","Salvador"],["GD","Grenada","Grenade"],["GT","Guatemala","Guatemala"],["GY","Guyana","Guyana"],
+["HT","Haiti","Haïti"],["HN","Honduras","Honduras"],["JM","Jamaica","Jamaïque"],["MX","Mexico","Mexique"],
+["NI","Nicaragua","Nicaragua"],["PA","Panama","Panama"],["PR","Puerto Rico","Porto Rico"],["KN","St Kitts & Nevis","Saint-Christophe-et-Niévès"],
+["LC","St Lucia","Sainte-Lucie"],["VC","St Vincent & Grenadines","Saint-Vincent-et-les-Grenadines"],["SR","Suriname","Suriname"],["TT","Trinidad & Tobago","Trinité-et-Tobago"],
+["US","United States","États-Unis"],
+/* ---- AFC ---- */
+["AF","Afghanistan","Afghanistan"],["AU","Australia","Australie"],["BH","Bahrain","Bahreïn"],["BD","Bangladesh","Bangladesh"],
+["BT","Bhutan","Bhoutan"],["BN","Brunei","Brunéi"],["KH","Cambodia","Cambodge"],["CN","China","Chine"],
+["TW","Chinese Taipei","Taipei chinois"],["GU","Guam","Guam"],["HK","Hong Kong","Hong Kong"],["IN","India","Inde"],
+["ID","Indonesia","Indonésie"],["IR","Iran","Iran"],["IQ","Iraq","Irak"],["JP","Japan","Japon"],
+["JO","Jordan","Jordanie"],["KW","Kuwait","Koweït"],["KG","Kyrgyzstan","Kirghizistan"],["LA","Laos","Laos"],
+["LB","Lebanon","Liban"],["MO","Macau","Macao"],["MY","Malaysia","Malaisie"],["MV","Maldives","Maldives"],
+["MN","Mongolia","Mongolie"],["MM","Myanmar","Myanmar"],["NP","Nepal","Népal"],["KP","North Korea","Corée du Nord"],
+["OM","Oman","Oman"],["PK","Pakistan","Pakistan"],["PS","Palestine","Palestine"],["PH","Philippines","Philippines"],
+["QA","Qatar","Qatar"],["SA","Saudi Arabia","Arabie saoudite"],["SG","Singapore","Singapour"],["KR","South Korea","Corée du Sud"],
+["LK","Sri Lanka","Sri Lanka"],["SY","Syria","Syrie"],["TJ","Tajikistan","Tadjikistan"],["TH","Thailand","Thaïlande"],
+["TL","Timor-Leste","Timor oriental"],["TM","Turkmenistan","Turkménistan"],["AE","United Arab Emirates","Émirats arabes unis"],["UZ","Uzbekistan","Ouzbékistan"],
+["VN","Vietnam","Viêt Nam"],["YE","Yemen","Yémen"],
+/* ---- OFC ---- */
+["AS","American Samoa","Samoa américaines"],["CK","Cook Islands","Îles Cook"],["FJ","Fiji","Fidji"],["NC","New Caledonia","Nouvelle-Calédonie"],
+["NZ","New Zealand","Nouvelle-Zélande"],["PG","Papua New Guinea","Papouasie-Nouvelle-Guinée"],["WS","Samoa","Samoa"],["SB","Solomon Islands","Îles Salomon"],
+["TO","Tonga","Tonga"],["TA","Tahiti","Tahiti"],["VU","Vanuatu","Vanuatu"]];
 const flag = cc => cc && cc.length===2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c=>0x1F1A5+c.charCodeAt(0))) : '🏳️';
 /* accent/punctuation-insensitive search key: "Côte d'Ivoire" -> "cote d ivoire" */
 const norm = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’'`´]/g,'').replace(/[\-\.&]/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-const CC_ALIAS = {CI:'Ivory Coast',CD:'DRC RDC Congo DR Congo Kinshasa',CG:'Congo Brazzaville',CV:'Cabo Verde',SZ:'Swaziland',ST:'Sao Tome',CF:'CAR Centrafrique Central African Republic',ZA:'RSA'};
+const CC_ALIAS = {CI:'Ivory Coast',CD:'DRC RDC Congo DR Congo Kinshasa',CG:'Congo Brazzaville',CV:'Cabo Verde',SZ:'Swaziland',ST:'Sao Tome',CF:'CAR Centrafrique Central African Republic',ZA:'RSA',US:'USA America Etats Unis',GB:'England Angleterre UK Britain Scotland Wales',KR:'Korea Coree',KP:'Korea Coree',AE:'UAE',CZ:'Czech Republic Tchequie',BA:'Bosnia BiH Bosnie',MK:'Macedonia Macedoine',TW:'Taiwan',NL:'Holland Hollande',CH:'Suisse Switzerland',TR:'Turkey Turquie'};
 const cSearch = cc => { const r=CAF.find(x=>x[0]===cc); return r ? norm(`${r[1]} ${r[2]} ${cc} ${CC_ALIAS[cc]||''}`) : norm(cc); };
-const cName = cc => { const r=CAF.find(x=>x[0]===cc); return r ? (LANG==='fr'?r[2]:r[1]) : cc; };
+const cName = cc => { if(!cc) return ''; const r=CAF.find(x=>x[0]===cc); return r ? (LANG==='fr'?r[2]:r[1]) : cc; };
 const FOOT_FR={Right:'Droit',Left:'Gauche',Both:'Deux pieds'};
 const tFoot = v => { if(!v) return ''; const c=v==='Droit'?'Right':v==='Gauche'?'Left':v; return LANG==='fr'?(FOOT_FR[c]||v):c; };
 const readFileAsDataURL=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});
 async function resizePhoto(file,maxDim=400){const url=await readFileAsDataURL(file);return new Promise(res=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,maxDim/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*sc)||1;cv.height=Math.round(img.height*sc)||1;cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);res(cv.toDataURL('image/jpeg',0.8));};img.onerror=()=>res(url);img.src=url;});}
 function openDataUrl(d){try{const [meta,b64]=d.split(',');const mime=(meta.match(/data:([^;]+)/)||[])[1]||'application/pdf';const bin=atob(b64);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);window.open(URL.createObjectURL(new Blob([arr],{type:mime})),'_blank');}catch(e){window.open(d,'_blank');}}
 const CORNERS=[['note_technique','technique'],['note_tactique','tactique'],['note_mental','mental'],['note_athletique','athletique']];
+const jlist=v=>{try{const a=JSON.parse(v||'[]');return Array.isArray(a)?a:[];}catch(e){return (v||'').split(',').map(x=>x.trim()).filter(Boolean);}};
+const chips=(arr,dashed)=>arr.map(x=>`<span style="display:inline-block;border:1px ${dashed?'dashed':'solid'} ${dashed?'var(--line)':'var(--pink-dim)'};color:${dashed?'var(--muted)':'var(--pink-soft)'};border-radius:999px;padding:3px 10px;font-size:12px;margin:2px 4px 2px 0">${esc(x)}</span>`).join('');
 const compLabel=c=>c?`${c.name}${c.season?' '+c.season:''}`:'';
 const linkify=escaped=>escaped.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
 const noteBody=n=>{let h='';if(n.positions_played)h+=`<div class="mono" style="font-size:11.5px;color:var(--muted);margin-bottom:2px">${esc(n.positions_played)}</div>`;if(n.note)h+=`<div class="pre">${esc(n.note)}</div>`;h+=CORNERS.filter(([k])=>n[k]).map(([k,l])=>`<div class="pre" style="margin-top:4px"><span class="mono" style="color:var(--pink);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">${t(l)}</span><br>${esc(n[k])}</div>`).join('');return h;};
-const NAT_TEAMS = CAF.flatMap(([cc,en,fr])=>['','U20','U18','U17','U15'].map(l=>({cc,label:l,key:`${cc}${l?'-'+l:''}`})));
+const NAT_TEAMS = CAF.flatMap(([cc,en,fr])=>['','U20','U19','U18','U17','U15'].map(l=>({cc,label:l,key:`${cc}${l?'-'+l:''}`})));
 const natTeamName = k => { const m=k.match(/^([A-Z]{2})(?:-(U\d+))?$/); if(!m) return k; return `${flag(m[1])} ${cName(m[1])}${m[2]?' '+m[2]:''}`; };
 const CONT_COMPS = ["WAFCON","WAFCON Qualifiers","WWC Qualifiers (CAF)","Olympic Qualifiers (CAF)","CAF Women's Champions League","CAF WCL Zonal Qualifiers","U20 WWC Qualifiers (CAF)","U17 WWC Qualifiers (CAF)","CECAFA Championship","CECAFA U20","CECAFA U17","COSAFA Championship","COSAFA U20","COSAFA U17","WAFU A Championship","WAFU B Championship","UNIFFAC Championship","African Games"];
 const INTL_COMPS = ["FIFA Women's World Cup","FIFA U20 Women's World Cup","FIFA U17 Women's World Cup","Olympic Games"];
@@ -404,7 +451,7 @@ async function viewPlayers(){
       (!f.country||p.country===f.country)&&(!f.pos||p.position===f.pos)&&
       (!f.scout||p.scout===f.scout)&&(!f.status||p.status===f.status));
     const so=state.sort||'edited';
-    const rk=(v,best)=>v==null?999:(best?v:-v); /* 1=best; nulls last */
+    const rk=(v,best)=>v==null?999:(best?-v:v); /* higher = better; nulls last */
     if(so==='edited') ps.sort((a,b)=>((b.updated_at||b.created_at||'')).localeCompare(a.updated_at||a.created_at||''));
     else if(so==='added') ps.sort((a,b)=>((b.created_at||'')).localeCompare(a.created_at||''));
     else if(so==='nivBest') ps.sort((a,b)=>rk(a.rendement,1)-rk(b.rendement,1)||a.name.localeCompare(b.name));
@@ -432,9 +479,9 @@ async function viewPlayers(){
   $('#ft').onchange=e=>{f.status=e.target.value;draw();};
   $('#addP').onclick=()=>{ if(!requireUnlock())return; quickAddPlayer(p=>nav('#/player/'+p.slug)); };
   $('#expBtn').onclick=()=>{
-    const cols=['name','country','birth_date','position','position2','position3','foot','height','nt_level','status','rendement','potentiel','scout'];
+    const cols=['name','country','nationality2','birth_date','position','position2','position3','foot','weak_foot','height','weight','nt_level','status','rendement','potentiel','superpowers','blindspots','risk','agent','date_scouted','scout'];
     const csv=[cols.join(',')].concat(CACHE.players.map(p=>cols.map(c=>`"${String(p[c]??'').replace(/"/g,'""')}"`).join(','))).join('\n');
-    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='afroscout_players.csv'; a.click();
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='sightings_players.csv'; a.click();
   };
 }
 
@@ -516,31 +563,35 @@ async function viewPlayer(slug){
      <button class="btn small" id="cpy">${t('copyLink')}</button>
      <button class="btn small primary" id="editBtn">${t('edit')}</button></div>
    <div class="panel"><div class="kv">
-     <div><b>${t('country')}</b><span>${flag(p.country)} ${cName(p.country)}</span></div>
+     <div><b>${t('country')}</b><span>${flag(p.country)} ${cName(p.country)}${p.nationality2?` · ${flag(p.nationality2)} ${cName(p.nationality2)}`:''}</span></div>
      <div><b>${t('born')}</b><span class="mono">${p.birth_date?fmtDate(p.birth_date):(p.birth_year||'—')}</span></div>
      <div><b>${t('position')}</b><span>${F('position')}${p.position2?' / '+esc(p.position2):''}${p.position3?' / '+esc(p.position3):''}</span></div>
-     <div><b>${t('foot')}</b><span>${esc(tFoot(p.foot))||'—'}</span></div>
-     <div><b>${t('height')}</b><span class="mono">${p.height?p.height+' cm':'—'}</span></div>
+     <div><b>${t('foot')}</b><span>${esc(tFoot(p.foot))||'—'}${p.weak_foot?` <span class="mono" style="color:var(--muted);font-size:12px">· ${t('weakFoot').toLowerCase()} ${p.weak_foot}/5</span>`:''}</span></div>
+     <div><b>${t('height')}</b><span class="mono">${p.height?p.height+' cm':'—'}${p.weight?` · ${p.weight} kg`:''}</span></div>
      <div><b>${t('club')}</b><span>${club?`<a href="#/club/${club.slug}">${esc(club.name)}</a>`:'—'}</span></div>
      <div><b>${t('nt')}</b><span>${F('nt_level')||'—'}</span></div>
      <div><b>${t('agent')}</b><span>${F('agent')||'—'}</span></div>
+     <div><b>${t('dateScouted')}</b><span class="mono">${p.date_scouted?fmtDate(p.date_scouted):'—'}</span></div>
      <div><b>${t('formerClubs')}</b><span>${(CACHE.former||[]).filter(f=>f.player_id===p.id).map(f=>{const cl=CACHE.clubById[f.club_id];return cl?`<a href="#/club/${cl.slug}">${esc(cl.name)}</a>${f.period?` <span class="mono" style="font-size:11px;color:var(--muted)">${esc(f.period)}</span>`:''}`:null;}).filter(Boolean).join(' · ')||'—'}</span></div>
      <div><b>${t('links')}</b><span>${[p.soccerdonna_url?`<a href="${esc(p.soccerdonna_url)}" target="_blank" rel="noopener">Soccerdonna</a>`:'',p.social_url?`<a href="${esc(p.social_url)}" target="_blank" rel="noopener">Social</a>`:''].filter(Boolean).join(' · ')||'—'}</span></div>
    </div>${p.basic_info?`<p style="margin-top:12px;color:var(--muted);font-size:13.5px">ℹ️ ${t('basicInfo')}: <span class="pre">${esc(p.basic_info)}</span></p>`:''}</div>
 
    <div class="panel evalblock"><h3>${t('evaluation')}</h3>
-    ${(p.rendement||p.opinions_projection||p.pf_technique)?`
+    ${(p.rendement!=null||p.potentiel!=null||p.opinions_projection||p.pf_technique||jlist(p.superpowers).length||jlist(p.blindspots).length||p.risk)?`
      <div class="kv" style="margin-bottom:10px">
-       <div><b>${t('rendement')}</b><span class="mono">${p.rendement??'—'} / 8</span></div>
-       <div><b>${t('potentiel')}</b><span class="mono">${p.potentiel??'—'} / 8</span></div>
+       <div><b>${t('rendement')}</b><span class="mono">${p.rendement??'—'}</span></div>
+       <div><b>${t('potentiel')}</b><span class="mono">${p.potentiel??'—'}</span></div>
        <div><b>${t('benchmark')}</b><span>${F('benchmark')||'—'}</span></div>
      </div><div class="hint">${t('ratingHint')}</div>
-     <h4>${t('strengths')} — ${t('technique')}</h4><p class="pre">${F('pf_technique')||'—'}</p>
-     <h4>${t('strengths')} — ${t('tactique')}</h4><p class="pre">${F('pf_tactique')||'—'}</p>
-     <h4>${t('strengths')} — ${t('mental')}</h4><p class="pre">${F('pf_mental')||'—'}</p>
-     <h4>${t('strengths')} — ${t('athletique')}</h4><p class="pre">${F('pf_athletique')||'—'}</p>
-     <h4>${t('axe')}</h4><p class="pre">${F('axe_amelioration')||'—'}</p>
-     <h4>${t('opinions')}</h4><p class="pre">${F('opinions_projection')||'—'}</p>
+     ${jlist(p.superpowers).length?`<h4>${t('superpowers')}</h4><div>${chips(jlist(p.superpowers))}</div>`:''}
+     ${jlist(p.blindspots).length?`<h4>${t('blindspots')}</h4><div>${chips(jlist(p.blindspots),true)}</div>`:''}
+     ${p.risk?`<h4>${t('risk')}</h4><p class="pre">${esc(p.risk)}</p>`:''}
+     ${p.pf_technique?`<h4>${t('strengths')} — ${t('technique')}</h4><p class="pre">${F('pf_technique')}</p>`:''}
+     ${p.pf_tactique?`<h4>${t('strengths')} — ${t('tactique')}</h4><p class="pre">${F('pf_tactique')}</p>`:''}
+     ${p.pf_mental?`<h4>${t('strengths')} — ${t('mental')}</h4><p class="pre">${F('pf_mental')}</p>`:''}
+     ${p.pf_athletique?`<h4>${t('strengths')} — ${t('athletique')}</h4><p class="pre">${F('pf_athletique')}</p>`:''}
+     ${p.axe_amelioration?`<h4>${t('axe')}</h4><p class="pre">${F('axe_amelioration')}</p>`:''}
+     ${p.opinions_projection?`<h4>${t('opinions')}</h4><p class="pre">${F('opinions_projection')}</p>`:''}
      <p style="color:var(--muted);font-size:12px" class="mono">${t('by')} ${esc(p.scout||'')}${p.updated_by?` · ${t('editedBy')} ${esc(p.updated_by)} ${fmtDate(p.updated_at)}`:''}</p>`
     :`<p style="color:var(--muted)">${t('noEval')}</p>`}</div>
 
@@ -588,6 +639,15 @@ function editPlayer(p){
       <div><label>${t('pos3')}</label><input id="e_pos3" value="${F('position3')}"></div>
     </div>
     <div class="row2">
+      <div><label>${t('weakFoot')} (1–5)</label><input id="e_wf" type="number" min="1" max="5" value="${p.weak_foot||''}"></div>
+      <div><label>${t('weight')} (kg)</label><input id="e_w" type="number" value="${p.weight||''}"></div>
+      <div><label>${t('nat2')}</label><div id="e_cc2"></div></div>
+    </div>
+    <div class="row2">
+      <div><label>${t('dateScouted')}</label><input id="e_ds" class="mono" placeholder="jj/mm/aaaa" value="${p.date_scouted?fmtDate(p.date_scouted):''}" style="max-width:160px"></div>
+      <div></div>
+    </div>
+    <div class="row2">
       <div><label>${t('foot')}</label><select id="e_foot">${['','Right','Left','Both'].map(v=>`<option value="${v}" ${(p.foot===v||(v==='Right'&&p.foot==='Droit')||(v==='Left'&&p.foot==='Gauche'))?'selected':''}>${v?tFoot(v):'—'}</option>`).join('')}</select></div>
       <div><label>${t('height')} (cm)</label><input id="e_h" type="number" value="${p.height||''}"></div>
     </div>
@@ -609,8 +669,8 @@ function editPlayer(p){
     </div>
     <label>Status</label><select id="e_st">${['watchlist','follow','recommend','pass'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${t('status.'+s)}</option>`).join('')}</select>
     <div class="row3">
-      <div><label>${t('rendement')} (1–8)</label><input id="e_r" type="number" min="1" max="8" value="${p.rendement||''}"></div>
-      <div><label>${t('potentiel')} (1–8)</label><input id="e_p" type="number" min="1" max="8" value="${p.potentiel||''}"></div>
+      <div><label>CA</label><input id="e_r" type="number" min="0" max="10" step="0.5" value="${p.rendement??''}"></div>
+      <div><label>PA</label><input id="e_p" type="number" min="0" max="10" step="0.5" value="${p.potentiel??''}"></div>
       <div><label>${t('benchmark')}</label><input id="e_b" value="${F('benchmark')}" placeholder="U17 / senior / club tier"></div>
     </div>
     <div class="hint">${t('ratingHint')}</div>
@@ -621,6 +681,9 @@ function editPlayer(p){
     <label>${t('axe')}</label><textarea id="e_axe">${F('axe_amelioration')}</textarea>
     <label>${t('opinions')}</label><textarea id="e_op">${F('opinions_projection')}</textarea>
     <label>${t('basicInfo')}</label><textarea id="e_info">${F('basic_info')}</textarea>
+    <label>${t('superpowers')} <span class="mono" style="color:var(--muted);font-size:11px">(${t('spHint')})</span></label><input id="e_sp" value="${esc(jlist(p.superpowers).join(', '))}">
+    <label>${t('blindspots')}</label><input id="e_bs" value="${esc(jlist(p.blindspots).join(', '))}">
+    <label>${t('risk')}</label><textarea id="e_risk" rows="2">${esc(p.risk||'')}</textarea>
     <label>${t('formerClubs')}</label>
     <div id="e_fmr" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div>
     <div class="row3">
@@ -641,7 +704,7 @@ https://…">${F('highlights')}</textarea>
       <button class="btn danger" id="e_del">${t('delete')}</button><span style="flex:1"></span>
       <button class="btn" data-close>${t('cancel')}</button><button class="btn primary" id="e_ok">${t('save')}</button></div>`,
   el=>{
-    let eCC=p.country||'', eClubId=p.club_id||null, ncCC='', fmrClubId=null;
+    let eCC=p.country||'', eCC2=p.nationality2||'', eClubId=p.club_id||null, ncCC='', fmrClubId=null;
     const drawFmr=()=>{
       const list=(CACHE.former||[]).filter(f=>f.player_id===p.id);
       el.querySelector('#e_fmr').innerHTML=list.map(f=>{const cl=CACHE.clubById[f.club_id];
@@ -658,6 +721,7 @@ https://…">${F('highlights')}</textarea>
       if(r){CACHE.former.push(r);fmrClubId=null;el.querySelector('#e_fmr_club input').value='';el.querySelector('#e_fmr_period').value='';drawFmr();}
     };
     countryCombo(el.querySelector('#e_cc'),{value:eCC,onPick:v=>eCC=v});
+    countryCombo(el.querySelector('#e_cc2'),{value:eCC2,onPick:v=>eCC2=v});
     const eClubCombo=combo(el.querySelector('#e_club'),{placeholder:t('typeToSearch'),
       items:()=>[{label:'—',id:'',search:'none aucun -'},...CACHE.clubs.map(c=>({label:`${flag(c.country)} ${c.name}`,id:c.id,search:`${norm(c.name)} ${cSearch(c.country||'')}`}))],
       onPick:it=>eClubId=it.id||null,
@@ -674,12 +738,18 @@ https://…">${F('highlights')}</textarea>
       el.querySelector('#e_ncf').style.display='none';toast('✓');
     };
     el.querySelector('#e_ok').onclick=async()=>{
-      const patch={name:el.querySelector('#e_name').value.trim(),country:eCC,
+      const sp=el.querySelector('#e_sp').value.split(',').map(x=>x.trim()).filter(Boolean);
+      if(sp.length>5){toast(t('maxSp'));return;}
+      const bs=el.querySelector('#e_bs').value.split(',').map(x=>x.trim()).filter(Boolean);
+      const patch={name:el.querySelector('#e_name').value.trim(),country:eCC,nationality2:eCC2||null,
+        weak_foot:+el.querySelector('#e_wf').value||null,weight:+el.querySelector('#e_w').value||null,
+        date_scouted:parseDDMM(el.querySelector('#e_ds').value)||null,
+        superpowers:JSON.stringify(sp),blindspots:JSON.stringify(bs),risk:el.querySelector('#e_risk').value.trim()||null,
         position:el.querySelector('#e_pos').value.trim(),position2:el.querySelector('#e_pos2').value.trim()||null,position3:el.querySelector('#e_pos3').value.trim()||null,foot:el.querySelector('#e_foot').value,
         club_id:eClubId,
         height:+el.querySelector('#e_h').value||null,birth_date:parseDDMM(el.querySelector('#e_dob').value),
         nt_level:el.querySelector('#e_nt').value.trim(),status:el.querySelector('#e_st').value,
-        rendement:+el.querySelector('#e_r').value||null,potentiel:+el.querySelector('#e_p').value||null,
+        rendement:el.querySelector('#e_r').value===''?null:+el.querySelector('#e_r').value,potentiel:el.querySelector('#e_p').value===''?null:+el.querySelector('#e_p').value,
         benchmark:el.querySelector('#e_b').value.trim(),
         pf_technique:el.querySelector('#e_t1').value,pf_tactique:el.querySelector('#e_t2').value,
         pf_mental:el.querySelector('#e_t3').value,pf_athletique:el.querySelector('#e_t4').value,
@@ -1181,7 +1251,7 @@ async function viewClub(slug){
    <div class="panel"><div class="kv">
      <div><b>${t('country')}</b><span>${c.country?`${flag(c.country)} ${cName(c.country)}`:'—'}</span></div>
      <div><b>${t('city')}</b><span>${c.city?esc(c.city):'—'}</span></div>
-     <div><b>${t('clubLevel')}</b><span class="mono">${c.level?`${c.level} <span style="color:var(--muted);font-size:11px">/ 8 · ${t('ratingHint').split('·')[0].trim()}</span>`:'—'}</span></div>
+     <div><b>${t('clubLevel')}</b><span class="mono">${c.level??'—'}</span></div>
    </div>${c.info?`<p class="pre" style="margin-top:10px">${linkify(esc(c.info))}</p>`:''}</div>
    <div class="panel"><h3>${t('roster')} (${roster.length})</h3><div class="grid">
      ${roster.map(p=>`<a class="card" href="#/player/${p.slug}"><span class="flag">${flag(p.country)}</span>
