@@ -346,11 +346,11 @@ function playerKpiPositions(p){ return [...new Set([p.position,p.position2,p.pos
 function positionSpecificKeys(positions){ const seen=new Set(),out=[]; positions.forEach(pos=>(KPI_POSITION[pos]||[]).forEach(k=>{if(!seen.has(k)){seen.add(k);out.push(k);}})); return out; }
 function kpiGroups(positions){ return [[t('kpiPhysical'),KPI_PHYSICAL],[t('kpiUniversal'),KPI_UNIVERSAL],[positions.map(x=>POSITION_NAMES[x]||x).join(' / ')||t('kpiPos'),positionSpecificKeys(positions)]]; }
 function mountKpiEditor(container,positions,existing){
-  const isEdit=!!existing; existing=existing||{};
+  existing=existing||{};
   container.innerHTML=kpiGroups(positions).map(([label,keys])=>`
     <div style="margin-top:10px"><div class="mono" style="font-size:11px;color:var(--pink);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">${esc(label)}</div>
     ${keys.map(k=>{const hasVal=existing[k]!==undefined&&existing[k]!==null&&existing[k]!=='';
-      const val=hasVal?existing[k]:5; const isNa=isEdit&&!hasVal;
+      const val=hasVal?existing[k]:5; const isNa=!hasVal; /* N/A by default — only deliberately enabled KPIs count */
       return `<div data-krow style="display:grid;grid-template-columns:minmax(120px,1.2fr) 2fr 64px auto;gap:8px;align-items:center;margin-bottom:4px">
         <label style="margin:0;font-size:12.5px">${esc(k)}</label>
         <input type="range" class="kpi-range" min="1" max="10" step="0.1" value="${val}" ${isNa?'disabled':''}>
