@@ -63,10 +63,10 @@ main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
 .stub .rp{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;color:var(--pink)}
 .stub .lb{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
 .badge{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
-.badge.watchlist{color:var(--muted)}
-.badge.follow{color:var(--pink-soft);border-color:var(--pink-dim)}
-.badge.recommend{color:var(--ok);border-color:#1d5c3f}
-.badge.pass{color:#777}
+.badge.radar{color:var(--muted)}
+.badge.interesting{color:var(--pink-soft);border-color:var(--pink-dim)}
+.badge.track{color:var(--ok);border-color:#1d5c3f}
+.badge.discard{color:#777}
 .flag{font-size:18px}
 /* panels */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
@@ -142,7 +142,7 @@ const I18N = {
  fr:{players:'Joueuses',matches:'Matchs',competitions:'Compétitions',clubs:'Clubs',
   search:'Rechercher une joueuse…',allCountries:'Tous pays',allPositions:'Tous postes',allScouts:'Tous scouts',allStatus:'Tous statuts',
   addPlayer:'+ Joueuse',newMatch:'+ Rapport de match',export:'Export CSV',
-  status:{watchlist:'À observer',follow:'À suivre',recommend:'Recommandée',pass:'Écartée'},
+  status:{radar:'Radar',interesting:'Intéressante',track:'À suivre',discard:'Écartée'},showDiscarded:'Afficher écartées',
   lastObs:'Dernière obs.',noObs:'Jamais observée',born:'Née',height:'Taille',foot:'Pied',club:'Club',nt:'Sélection',position:'Poste',
   evaluation:'Évaluation',rendement:'CA (niveau actuel)',potentiel:'PA (potentiel)',rpBadge:'CA / PA',benchmark:'Évaluée par rapport à',
   ratingHint:'Plus haut = meilleur · demi-points OK · référence : niveaux de clubs seniors',
@@ -169,7 +169,7 @@ const I18N = {
  en:{players:'Players',matches:'Matches',competitions:'Competitions',clubs:'Clubs',
   search:'Search a player…',allCountries:'All countries',allPositions:'All positions',allScouts:'All scouts',allStatus:'All statuses',
   addPlayer:'+ Player',newMatch:'+ Match report',export:'Export CSV',
-  status:{watchlist:'Watchlist',follow:'Follow',recommend:'Recommend',pass:'Pass'},
+  status:{radar:'Radar',interesting:'Interesting',track:'Track',discard:'Discard'},showDiscarded:'Show discarded',
   lastObs:'Last obs.',noObs:'Never observed',born:'Born',height:'Height',foot:'Foot',club:'Club',nt:'Nat. team',position:'Position',
   evaluation:'Evaluation',rendement:'CA (current ability)',potentiel:'PA (potential)',rpBadge:'CA / PA',benchmark:'Rated against',
   ratingHint:'Higher = better · half-points OK · benchmark: senior club levels',
@@ -320,7 +320,7 @@ function tagInput(container,{value,suggestions,max,placeholder}){
   return {get:()=>[...arr]};
 }
 /* ---- KPI system (db-scout, verbatim) ---- */
-const POSITION_NAMES={GK:"Goalkeeper",CB:"Centre-Back",FB:"Full-Back",DM:"Defensive Midfield",CM:"Central Midfield",CAM:"Attacking Midfield",W:"Winger",ST:"Striker"};
+const POSITION_NAMES={GK:"Goalkeeper",CB:"Centre-Back",RB:"Right-Back",LB:"Left-Back",FB:"Full-Back",DM:"Defensive Midfield",CM:"Central Midfield",CAM:"Attacking Midfield",RW:"Right Winger",LW:"Left Winger",W:"Winger",ST:"Striker"};
 const KPI_PHYSICAL=["Top Speed","Acceleration","Deceleration","Agility & Change of Direction","Strength in Duels","Stamina","Work Rate","Recovery Speed"];
 const KPI_UNIVERSAL=["First Touch / Ball Control","Ball Mastery","Passing","Ball Progression – Pass","Ball Progression – Carry","Ball Retention","Decision-Making","Composure Under Pressure","Game Intelligence","Goal Threat","Ground Duels","Aerial Duels","Dynamic Dribbling"];
 const KPI_POSITION={
@@ -340,6 +340,21 @@ const POS_NORM=p=>{p=(p||'').toUpperCase().trim();
   if(['CM','8'].includes(p)) return 'CM';
   if(['CAM','AM','10'].includes(p)) return 'CAM';
   if(['W','RW','LW','WF','RM','LM'].includes(p)) return 'W';
+  if(['ST','CF','FW','9'].includes(p)) return 'ST';
+  return null;};
+/* Canonical PROFILE identity — for filters, dropdown, badges. Keeps side (RB/LB, RW/LW) distinct.
+   POS_NORM above stays the KPI-block resolver (RB/LB→FB, RW/LW→W share blocks). Two jobs, two funcs. */
+const IDENTITY_POSITIONS=['GK','CB','RB','LB','DM','CM','CAM','RW','LW','ST'];
+const POS_IDENTITY=p=>{p=(p||'').toUpperCase().trim();
+  if(p==='GK') return 'GK';
+  if(['CB','LCB','RCB'].includes(p)) return 'CB';
+  if(['RB','RWB'].includes(p)) return 'RB';
+  if(['LB','LWB'].includes(p)) return 'LB';
+  if(['DM','CDM','6'].includes(p)) return 'DM';
+  if(['CM','LCM','RCM','8'].includes(p)) return 'CM';
+  if(['CAM','AM','SS','10'].includes(p)) return 'CAM';
+  if(['RW','RM','RF'].includes(p)) return 'RW';
+  if(['LW','LM','LF'].includes(p)) return 'LW';
   if(['ST','CF','FW','9'].includes(p)) return 'ST';
   return null;};
 function playerKpiPositions(p){ return [...new Set([p.position,p.position2,p.position3].map(POS_NORM).filter(Boolean))]; }
@@ -410,7 +425,7 @@ function seedDemo(){
   demoDB.clubs.push({id:'cl1',slug:'hasaacas-ladies',name:'Hasaacas Ladies',country:'GH',scout:'Artem'},
                     {id:'cl2',slug:'ampem-darkoa-ladies',name:'Ampem Darkoa Ladies',country:'GH',scout:'Artem'});
   demoDB.players.push(
-   {id:'p2',slug:'osei-rubby-2007',name:'OSEI Rubby',country:'GH',birth_date:'2007-10-30',birth_year:2007,position:'CB',position2:'',foot:'Right',height:168,nt_level:'Ghana WU20',club_id:'cl1',photo_url:'',basic_info:'Hasaacas Ladies (Ghana-1). RCB.',status:'follow',rendement:4,potentiel:2,benchmark:'Senior club tiers',pf_technique:'Left-foot passing limited; distribution decent, loves a chipped line-breaker.',pf_tactique:'Constant defensive scanning; reads passes and runs early; organizes the line.',pf_mental:'Brave in duels; smart gamesmanship without conceding fouls.',pf_athletique:'Near-elite agility; hops on toes for big turns; first-step burst and recovery pace.',axe_amelioration:'Angles & timing when leaving position to press; ball-playing under pressure; weaker left foot.',opinions_projection:'Ceiling rests on decision-making, not physical tools. Fits a vertical game model. Tier-2 European starter projection; Turkey-1 pathway realistic (cf. Owusu Ansah → AFC Toronto precedent).',scout:'Artem',created_at:'2026-07-09T09:00:00Z',updated_at:'2026-07-09T09:00:00Z',updated_by:'Artem'});
+   {id:'p2',slug:'osei-rubby-2007',name:'OSEI Rubby',country:'GH',birth_date:'2007-10-30',birth_year:2007,position:'CB',position2:'',foot:'Right',height:168,nt_level:'Ghana WU20',club_id:'cl1',photo_url:'',basic_info:'Hasaacas Ladies (Ghana-1). RCB.',status:'track',rendement:4,potentiel:2,benchmark:'Senior club tiers',pf_technique:'Left-foot passing limited; distribution decent, loves a chipped line-breaker.',pf_tactique:'Constant defensive scanning; reads passes and runs early; organizes the line.',pf_mental:'Brave in duels; smart gamesmanship without conceding fouls.',pf_athletique:'Near-elite agility; hops on toes for big turns; first-step burst and recovery pace.',axe_amelioration:'Angles & timing when leaving position to press; ball-playing under pressure; weaker left foot.',opinions_projection:'Ceiling rests on decision-making, not physical tools. Fits a vertical game model. Tier-2 European starter projection; Turkey-1 pathway realistic (cf. Owusu Ansah → AFC Toronto precedent).',scout:'Artem',created_at:'2026-07-09T09:00:00Z',updated_at:'2026-07-09T09:00:00Z',updated_by:'Artem'});
   demoDB.match_reports.push(
    {id:'m2',slug:'2026-06-24-hasaacas-ladies-vs-ampem-darkoa-ladies',competition_id:'c2',home_team:'club:cl1',away_team:'club:cl2',match_date:'2026-06-24',general_notes:'Pitch quality poor — limited read on short build-up.',scout:'Artem',created_at:'2026-06-24T20:00:00Z',updated_at:'2026-06-24T20:00:00Z'});
   demoDB.player_notes.push(
@@ -437,7 +452,7 @@ async function dbDelete(table,id){
 }
 
 /* ================= STATE / AUTH ================= */
-const state = { unlocked: sessionStorage.getItem('afs_unlocked')==='1', scout: sessionStorage.getItem('afs_scout')||'', sort:'edited', filters:{q:'',country:'',pos:'',scout:'',status:'',fed:''} };
+const state = { unlocked: sessionStorage.getItem('afs_unlocked')==='1', scout: sessionStorage.getItem('afs_scout')||'', sort:'edited', filters:{q:'',country:'',pos:'',scout:'',status:'',fed:'',showDiscarded:false} };
 function requireUnlock(){ if(state.unlocked) return true; openUnlock(); return false; }
 function openUnlock(){
   modal(`<h2>${t('unlock')}</h2>
@@ -541,7 +556,8 @@ const lastObs = pid => { const ns=CACHE.notes.filter(n=>n.player_id===pid).map(n
 async function viewPlayers(){
   await loadAll();
   const f=state.filters;
-  const positions=[...new Set(CACHE.players.map(p=>p.position).filter(Boolean))].sort();
+  const presentIds=new Set(CACHE.players.map(p=>POS_IDENTITY(p.position)).filter(Boolean));
+  const positions=IDENTITY_POSITIONS.filter(x=>presentIds.has(x));
   const countries=[...new Set(CACHE.players.map(p=>p.country).filter(Boolean))].sort();
   const app=$('#app');
   app.innerHTML=`
@@ -554,16 +570,18 @@ async function viewPlayers(){
      <select id="ffed"><option value="">${t('allFeds')}</option>${FEDS.map(x=>`<option value="${x}" ${f.fed===x?'selected':''}>${x}</option>`).join('')}</select>
      <div id="fc" style="min-width:170px"></div>
      <select id="fp"><option value="">${t('allPositions')}</option>${positions.map(p=>`<option ${f.pos===p?'selected':''}>${p}</option>`).join('')}</select>
-     <select id="ft"><option value="">${t('allStatus')}</option>${['watchlist','follow','recommend','pass'].map(s=>`<option value="${s}" ${f.status===s?'selected':''}>${t('status.'+s)}</option>`).join('')}</select>
+     <select id="ft"><option value="">${t('allStatus')}</option>${['radar','interesting','track','discard'].map(s=>`<option value="${s}" ${f.status===s?'selected':''}>${t('status.'+s)}</option>`).join('')}</select>
      <select id="fsort" title="${t('sortBy')}">${[['edited',t('sortEdited')],['added',t('sortAdded')],['name',t('sortName')],['nivBest',t('sortNivBest')],['nivWorst',t('sortNivWorst')],['potBest',t('sortPotBest')],['potWorst',t('sortPotWorst')]].map(([v,l])=>`<option value="${v}" ${state.sort===v?'selected':''}>${t('sortBy')}: ${l}</option>`).join('')}</select>
+     <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" id="fsd" ${f.showDiscarded?'checked':''}>${t('showDiscarded')}</label>
    </div>
    <div class="grid" id="pgrid"></div>`;
   const draw=()=>{
     let ps=CACHE.players.filter(p=>
       (!f.q||norm(p.name).includes(norm(f.q)))&&
       (!f.country||p.country===f.country||p.nationality2===f.country||p.nationality3===f.country)&&
-      (!f.fed||playerFeds(p).includes(f.fed))&&(!f.pos||p.position===f.pos)&&
-      (!f.scout||p.scout===f.scout)&&(!f.status||p.status===f.status));
+      (!f.fed||playerFeds(p).includes(f.fed))&&(!f.pos||POS_IDENTITY(p.position)===f.pos)&&
+      (!f.scout||p.scout===f.scout)&&(!f.status||p.status===f.status)&&
+      (f.showDiscarded||f.status==='discard'||p.status!=='discard'));
     const so=state.sort||'edited';
     const rk=(v,best)=>v==null?999:(best?-v:v); /* higher = better; nulls last */
     if(so==='edited') ps.sort((a,b)=>((b.updated_at||b.created_at||'')).localeCompare(a.updated_at||a.created_at||''));
@@ -591,6 +609,7 @@ async function viewPlayers(){
   $('#fsort').onchange=e=>{state.sort=e.target.value;draw();};
   $('#fp').onchange=e=>{f.pos=e.target.value;draw();};
   $('#ft').onchange=e=>{f.status=e.target.value;draw();};
+  $('#fsd').onchange=e=>{f.showDiscarded=e.target.checked;draw();};
   $('#addP').onclick=()=>{ if(!requireUnlock())return; quickAddPlayer(p=>nav('#/player/'+p.slug)); };
   $('#expBtn').onclick=()=>{
     const cols=['name','country','nationality2','nationality3','birth_date','position','position2','position3','foot','weak_foot','height','weight','nt_level','status','rendement','potentiel','superpowers','blindspots','risk','agent','date_scouted','scout'];
@@ -645,7 +664,7 @@ function quickAddPlayer(done,prefillName){
       const by=+el.querySelector('#qa_by').value || (dob?+dob.slice(0,4):null);
       const p=await dbInsert('players',{slug:uniqSlug(slugify(name)+(by?'-'+by:''),CACHE.players),name,country:cc,
         birth_date:dob,birth_year:by,position:el.querySelector('#qa_pos').value.trim(),position2:el.querySelector('#qa_pos2').value.trim()||null,position3:el.querySelector('#qa_pos3').value.trim()||null,club_id:clubId,
-        basic_info:el.querySelector('#qa_info').value.trim(),status:'watchlist'});
+        basic_info:el.querySelector('#qa_info').value.trim(),status:'radar'});
       if(p){CACHE.players.push(p);CACHE.playerById[p.id]=p;closeModal();done(p);}
     };
   });
@@ -789,7 +808,8 @@ function editPlayer(p){
       <div><label>${t('birthDate')}</label><input id="e_dob" value="${p.birth_date?fmtDate(p.birth_date):''}"></div>
       <div><label>${t('nt')}</label><input id="e_nt" value="${F('nt_level')}"></div>
     </div>
-    <label>Status</label><select id="e_st">${['watchlist','follow','recommend','pass'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${t('status.'+s)}</option>`).join('')}</select>
+    <label>Status</label><select id="e_st">${['radar','interesting','track','discard'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${t('status.'+s)}</option>`).join('')}</select>
+    <label>Discard reason</label><input id="e_dr" value="${F('discard_reason')}" placeholder="one line — why she won't make it" style="${p.status==='discard'?'':'opacity:.5'}">
     <div class="row3">
       <div><label>CA</label><input id="e_r" type="number" min="1" max="10" step="0.1" value="${p.rendement??''}"></div>
       <div><label>PA</label><input id="e_p" type="number" min="1" max="10" step="0.1" value="${p.potentiel??''}"></div>
@@ -883,6 +903,7 @@ https://…">${F('highlights')}</textarea>
         club_id:eClubId,
         height:+el.querySelector('#e_h').value||null,birth_date:parseDDMM(el.querySelector('#e_dob').value),
         nt_level:el.querySelector('#e_nt').value.trim(),status:el.querySelector('#e_st').value,
+        discard_reason:el.querySelector('#e_st').value==='discard'?(el.querySelector('#e_dr').value.trim()||null):null,
         rendement:el.querySelector('#e_r').value===''?null:+el.querySelector('#e_r').value,potentiel:el.querySelector('#e_p').value===''?null:+el.querySelector('#e_p').value,
         benchmark:el.querySelector('#e_b').value.trim(),
         pf_technique:el.querySelector('#e_t1').value,pf_tactique:el.querySelector('#e_t2').value,
@@ -1092,7 +1113,7 @@ async function viewMatchNew(){
             const by=pl.birth_year?String(pl.birth_year):((pl.birth_date&&String(pl.birth_date).match(/(19|20)\d{2}/))||[])[0]||null;
             const dob=pl.birth_date?parseDDMM(String(pl.birth_date)):null;
             p=await dbInsert('players',{slug:uniqSlug(slugify(pl.name)+(by?'-'+by:''),CACHE.players),name:pl.name,country:cc,
-              birth_year:by?+by:null,birth_date:dob,position:(pl.positions||[])[0]||null,position2:(pl.positions||[])[1]||null,status:'watchlist'});
+              birth_year:by?+by:null,birth_date:dob,position:(pl.positions||[])[0]||null,position2:(pl.positions||[])[1]||null,status:'radar'});
             if(p){CACHE.players.push(p);CACHE.playerById[p.id]=p;rpt.createdPlayers.push(pl.name);}
           }
           if(!p){ rpt.unmatched.push(pl.name||'?'); continue; }
